@@ -69,6 +69,7 @@ private:
 
   // Aux functions
   void getHandles(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillTree();
   void makeTree();
 
 
@@ -102,14 +103,41 @@ private:
 
   // L1T collections
   const edm::InputTag   EMTFHitTag_;
+  const edm::InputTag   EMTFUnpHitTag_;
+
   const edm::InputTag   EMTFTrackTag_;
+  const edm::InputTag   EMTFUnpTrackTag_;
+  
   const edm::InputTag   GMTMuonTag_;
+  const edm::InputTag   GMTUnpMuonTag_;
+  
   const edm::InputTag   GENPartTag_;
 
   const std::string     outFileName_;
   int verbose_;
+
   bool enablePhase2_;
-  bool enableCPPF_;
+
+  bool useCSC_;
+  bool useRPC_;
+  bool useCPPF_;
+  bool useGEM_;
+
+  bool useIRPC_;
+  bool useME0_;
+  bool useDT_;
+
+  bool useEMTFHits_;
+  bool useEMTFUnpHits_;
+
+  bool useEMTFTracks_;
+  bool useEMTFUnpTracks_;
+
+  bool useGMTMuons_;
+  bool useGMTUnpMuons_;
+
+  bool useGENParts_;
+  bool useEventInfo_;
 
 
   // Run 3 TPs
@@ -125,8 +153,14 @@ private:
   
   // L1T collections
   edm::EDGetTokenT<l1t::EMTFHitCollection>          EMTFHitToken_;
+  edm::EDGetTokenT<l1t::EMTFHitCollection>          EMTFUnpHitToken_;
+
   edm::EDGetTokenT<l1t::EMTFTrackCollection>        EMTFTrackToken_;
+  edm::EDGetTokenT<l1t::EMTFTrackCollection>        EMTFUnpTrackToken_;
+
   edm::EDGetTokenT<l1t::MuonBxCollection>           GMTMuonToken_;
+  edm::EDGetTokenT<l1t::MuonBxCollection>           GMTUnpMuonToken_;
+  
   edm::EDGetTokenT<reco::GenParticleCollection>     GENPartToken_;
 
   
@@ -141,8 +175,14 @@ private:
   TriggerPrimitiveCollection  DTInputs_;
 
   l1t::EMTFHitCollection      EMTFHits_;
+  l1t::EMTFHitCollection      EMTFUnpHits_;
+
   l1t::EMTFTrackCollection    EMTFTracks_;
+  l1t::EMTFTrackCollection    EMTFUnpTracks_;
+  
   const l1t::MuonBxCollection*       GMTMuons_;
+  const l1t::MuonBxCollection*       GMTUnpMuons_;
+
   const reco::GenParticleCollection* GENParts_;
 
   // TTree
@@ -248,9 +288,40 @@ private:
   std::unique_ptr<std::vector<float  > >  emtfHit_sim_theta;  // in degrees
   std::unique_ptr<std::vector<float  > >  emtfHit_sim_r;      // in cm
   std::unique_ptr<std::vector<float  > >  emtfHit_sim_z;      // in cm
-  std::unique_ptr<std::vector<int32_t> >  emtfHit_sim_tp1;
-  std::unique_ptr<std::vector<int32_t> >  emtfHit_sim_tp2;
+  // std::unique_ptr<std::vector<int32_t> >  emtfHit_sim_tp1;
+  // std::unique_ptr<std::vector<int32_t> >  emtfHit_sim_tp2;
   std::unique_ptr<int32_t              >  emtfHit_size;
+
+  // EMTF Unpacked Hits
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_endcap;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_station;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_ring;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_sector;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_subsector;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_chamber;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_cscid;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_bx;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_type;  // subsystem: DT=0,CSC=1,RPC=2,GEM=3,ME0=4
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_neighbor;
+  //
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_strip;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_wire;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_roll;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_quality;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_pattern;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_bend;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_time;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpHit_fr;
+  std::unique_ptr<std::vector<int32_t> >  emtfUnpHit_emtf_phi;   // integer unit
+  std::unique_ptr<std::vector<int32_t> >  emtfUnpHit_emtf_theta; // integer unit 
+  //
+  std::unique_ptr<std::vector<float  > >  emtfUnpHit_sim_phi;    // in degrees
+  std::unique_ptr<std::vector<float  > >  emtfUnpHit_sim_theta;  // in degrees
+  std::unique_ptr<std::vector<float  > >  emtfUnpHit_sim_r;      // in cm
+  std::unique_ptr<std::vector<float  > >  emtfUnpHit_sim_z;      // in cm
+  // std::unique_ptr<std::vector<int32_t> >  emtfUnpHit_sim_tp1;
+  // std::unique_ptr<std::vector<int32_t> >  emtfUnpHit_sim_tp2;
+  std::unique_ptr<int32_t              >  emtfUnpHit_size;
 
   // EMTF Tracks
   std::unique_ptr<std::vector<float  > >  emtfTrack_pt;
@@ -276,6 +347,30 @@ private:
   std::unique_ptr<std::vector<int32_t> >  emtfTrack_hitref4;
   std::unique_ptr<int32_t              >  emtfTrack_size;
 
+  // EMTF Unpacked Tracks
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_pt;
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_xml_pt;
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_pt_dxy;
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_dxy;
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_invpt_prompt;
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_invpt_displ;
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_phi;        // in degrees
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_theta;      // in degrees
+  std::unique_ptr<std::vector<float  > >  emtfUnpTrack_eta;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_q;          // charge
+  //
+  std::unique_ptr<std::vector<uint64_t> > emtfUnpTrack_address;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_mode;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_endcap;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_sector;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_bx;
+  std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_nhits;
+  std::unique_ptr<std::vector<int32_t> >  emtfUnpTrack_hitref1;
+  std::unique_ptr<std::vector<int32_t> >  emtfUnpTrack_hitref2;
+  std::unique_ptr<std::vector<int32_t> >  emtfUnpTrack_hitref3;
+  std::unique_ptr<std::vector<int32_t> >  emtfUnpTrack_hitref4;
+  std::unique_ptr<int32_t              >  emtfUnpTrack_size;
+
   // GMT Muons
   std::unique_ptr<std::vector<float  > >  gmtMuon_pt;
   std::unique_ptr<std::vector<float  > >  gmtMuon_pt_dxy;
@@ -285,6 +380,16 @@ private:
   std::unique_ptr<std::vector<int16_t> >  gmtMuon_q;          // charge
   std::unique_ptr<std::vector<int16_t> >  gmtMuon_qual;      
   std::unique_ptr<int32_t              >  gmtMuon_size;
+
+  // GMT Unpacked Muons
+  std::unique_ptr<std::vector<float  > >  gmtUnpMuon_pt;
+  std::unique_ptr<std::vector<float  > >  gmtUnpMuon_pt_dxy;
+  std::unique_ptr<std::vector<int16_t> >  gmtUnpMuon_dxy;
+  std::unique_ptr<std::vector<float  > >  gmtUnpMuon_phi;        // in degrees
+  std::unique_ptr<std::vector<float  > >  gmtUnpMuon_eta;
+  std::unique_ptr<std::vector<int16_t> >  gmtUnpMuon_q;          // charge
+  std::unique_ptr<std::vector<int16_t> >  gmtUnpMuon_qual;      
+  std::unique_ptr<int32_t              >  gmtUnpMuon_size;
 
   // GEN particles
   std::unique_ptr<std::vector<float  > >  genPart_pt;

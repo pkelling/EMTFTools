@@ -2,29 +2,52 @@ import FWCore.ParameterSet.Config as cms
 
 EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
 
-    CSCInputTag     = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'), 
-    RPCInputTag     = cms.InputTag('simMuonRPCDigis'), 
-    CPPFInputTag    = cms.InputTag('simCPPFDigis'), 
-    GEMInputTag     = cms.InputTag('simMuonGEMPadDigiClusters'), 
+    CSCInputTag      = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'), 
+    RPCInputTag      = cms.InputTag('simMuonRPCDigis'), 
+    CPPFInputTag     = cms.InputTag('simCPPFDigis'), 
+    GEMInputTag      = cms.InputTag('simMuonGEMPadDigiClusters'), 
 
-    IRPCInputTag    = cms.InputTag('simMuonRPCDigis'), 
-    ME0InputTag     = cms.InputTag('me0TriggerConvertedPseudoDigis'), 
-    DTInputTag      = cms.InputTag('simDtTriggerPrimitiveDigis'), 
+    IRPCInputTag     = cms.InputTag('simMuonRPCDigis'), 
+    ME0InputTag      = cms.InputTag('me0TriggerConvertedPseudoDigis'), 
+    DTInputTag       = cms.InputTag('simDtTriggerPrimitiveDigis'), 
 
-    enablePhase2    = cms.bool(False),
-    enableCPPF      = cms.bool(False),
+    EMTFHitTag       = cms.InputTag('simEmtfDigis'),
+    EMTFUnpHitTag    = cms.InputTag('emtfDigis', 'EMTF'),
+    
+    EMTFTrackTag     = cms.InputTag('simEmtfDigis'),
+    EMTFUnpTrackTag  = cms.InputTag('emtfDigis', 'EMTF'),
+
+    GMTMuonTag       = cms.InputTag('simGmtStage2Digis'),
+    GMTUnpMuonTag    = cms.InputTag('gmtStage2Digis', 'Muons'),
+
+    GENPartTag       = cms.InputTag('genParticles'),
+
+    outFileName      = cms.string('EMTFNtuple.root'),
+    verbosity        = cms.untracked.int32(0),
+
+    # Change defaults to enable/disable processing of various inputs
+    enablePhase2     = cms.bool(False),
+
+    useCSC           = cms.bool(False),
+    useRPC           = cms.bool(False),
+    useCPPF          = cms.bool(False),
+    useGEM           = cms.bool(False),
+
+    useIRPC          = cms.bool(False),
+    useME0           = cms.bool(False),
+    useDT            = cms.bool(False),
 
 
-
-    EMTFHitTag      = cms.InputTag('simEmtfDigis'),
-    EMTFTrackTag    = cms.InputTag('simEmtfDigis'),
-    GMTMuonTag      = cms.InputTag('simGmtStage2Digis'),
-    GENPartTag      = cms.InputTag('genParticles'),
-
-
-    outFileName     = cms.string('ntuple.root'),
-    verbosity       = cms.untracked.int32(0),
-
-
+    useEMTFHits      = cms.bool(True),
+    useEMTFUnpHits   = cms.bool(False),
+    
+    useEMTFTracks    = cms.bool(True),
+    useEMTFUnpTracks = cms.bool(False),
+    
+    useGMTMuons      = cms.bool(True),
+    useGMTUnpMuons   = cms.bool(False),
+    
+    useGENParts      = cms.bool(True),
+    useEventInfo     = cms.bool(False),
 
   )
