@@ -15,10 +15,10 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
     EMTFUnpHitTag    = cms.InputTag('emtfDigis', 'EMTF'),
     
     EMTFTrackTag     = cms.InputTag('simEmtfDigis'),
-    EMTFUnpTrackTag  = cms.InputTag('emtfDigis', 'EMTF'),
+    EMTFUnpTrackTag  = cms.InputTag('gmtStage2Digis', 'EMTF'),
 
     GMTMuonTag       = cms.InputTag('simGmtStage2Digis'),
-    GMTUnpMuonTag    = cms.InputTag('gmtStage2Digis', 'Muons'),
+    GMTUnpMuonTag    = cms.InputTag('gmtStage2Digis', 'Muon'),
 
     GENPartTag       = cms.InputTag('genParticles'),
 
@@ -28,7 +28,7 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
     # Change defaults to enable/disable processing of various inputs
     enablePhase2     = cms.bool(False),
 
-    useCSC           = cms.bool(False),
+    useCSC           = cms.bool(True),
     useRPC           = cms.bool(False),
     useCPPF          = cms.bool(False),
     useGEM           = cms.bool(False),

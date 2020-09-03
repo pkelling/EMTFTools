@@ -48,6 +48,8 @@
 #include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.h"
+#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
+
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 
@@ -164,7 +166,10 @@ private:
   edm::EDGetTokenT<reco::GenParticleCollection>     GENPartToken_;
 
   
-  
+  GeometryTranslator geometryTranslator_;
+
+  EMTFSubsystemCollector collector_; 
+
   TriggerPrimitiveCollection  CSCInputs_;
   TriggerPrimitiveCollection  RPCInputs_;
   TriggerPrimitiveCollection  CPPFInputs_;
@@ -197,7 +202,6 @@ private:
   std::unique_ptr<std::vector<int16_t> >  cscInput_station;
   std::unique_ptr<std::vector<int16_t> >  cscInput_ring;
   std::unique_ptr<std::vector<int16_t> >  cscInput_sector;
-  std::unique_ptr<std::vector<int16_t> >  cscInput_subsector;
   std::unique_ptr<std::vector<int16_t> >  cscInput_chamber;
   std::unique_ptr<std::vector<int16_t> >  cscInput_cscid;
   std::unique_ptr<std::vector<int16_t> >  cscInput_bx;

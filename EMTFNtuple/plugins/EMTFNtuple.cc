@@ -102,15 +102,81 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
   if (verbose_ > 0) std::cout << "******* Processing Objects *******" << std::endl;
-  // std::cout << "******* hits: " << EMTFHits_.size()    <<
-  //                 " unp hits: " << EMTFUnpHits_.size() << 
-  //                 "   tracks: " << EMTFTracks_.size() << 
-  //               " unp tracks: " << EMTFUnpTracks_.size() << 
-  //               "  gmt muons: " << GMTMuons_->size() << 
-  //           "  unp gmt muons: " << GMTUnpMuons_->size() << std::endl;
   
   // ___________________________________________________________________________
   // Process objects
+
+  // Run 3 inputs
+
+  // CSC inputs
+  if (useCSC_) {
+    for (const auto& tp : CSCInputs_) {
+      if (tp.subsystem() == TriggerPrimitive::kCSC) {
+        const CSCDetId& tp_detId = tp.detId<CSCDetId>();
+        const CSCData& tp_data = tp.getCSCData();
+
+        cscInput_bx                ->push_back(tp.getBX());
+        cscInput_endcap            ->push_back(tp_detId.endcap());
+        cscInput_station           ->push_back(tp_detId.station());
+        cscInput_ring              ->push_back(tp_detId.ring());
+        cscInput_sector            ->push_back(tp_detId.triggerSector());
+        cscInput_chamber           ->push_back(tp_detId.chamber());
+        cscInput_cscid             ->push_back(tp_data.cscID);
+        cscInput_strip             ->push_back(tp.getStrip());
+        cscInput_wire              ->push_back(tp.getWire());
+        cscInput_quality           ->push_back(tp_data.quality);
+        cscInput_pattern           ->push_back(tp_data.pattern);
+        cscInput_bend              ->push_back(tp_data.bend);
+      }
+    }  // end for loop
+  }  // end if
+
+  if (useRPC_) {
+    for (const auto& tp : RPCInputs_) {
+      if (tp.subsystem() == TriggerPrimitive::kRPC) {
+        const RPCDetId& tp_detId = tp.detId<RPCDetId>();
+        const RPCData& tp_data = tp.getRPCData();
+
+        rpcInput_bx                ->push_back(tp.getBX());
+        rpcInput_region            ->push_back(tp_detId.region());
+        rpcInput_station           ->push_back(tp_detId.station());
+        rpcInput_ring              ->push_back(tp_detId.ring());
+        rpcInput_sector            ->push_back(tp_detId.sector());
+        rpcInput_subsector         ->push_back(tp_detId.subsector());
+        rpcInput_roll              ->push_back(tp_detId.roll());
+        rpcInput_strip             ->push_back(tp.getStrip());
+        rpcInput_strip_high        ->push_back(tp_data.strip_hi);
+        rpcInput_strip_low         ->push_back(tp_data.strip_low);
+        rpcInput_time              ->push_back(tp_data.time);
+        rpcInput_valid             ->push_back(tp_data.valid);
+      }
+    } // end for loop
+  } // end if
+
+  if (useGEM_) {
+    for (const auto& tp : GEMInputs_) {
+      if (tp.subsystem() == TriggerPrimitive::kGEM) {
+        const GEMDetId& tp_detId = tp.detId<GEMDetId>();
+        const GEMData& tp_data = tp.getGEMData();
+       
+        gemInput_bx                ->push_back(tp.getBX());
+        gemInput_region            ->push_back(tp_detId.region());
+        gemInput_station           ->push_back(tp_detId.station());
+        gemInput_ring              ->push_back(tp_detId.ring());
+        // gemInput_sector            ->push_back(tp_detId.sector());
+        gemInput_chamber           ->push_back(tp_detId.chamber());
+        gemInput_roll              ->push_back(tp_detId.roll());
+        gemInput_layer             ->push_back(tp_detId.layer());
+        gemInput_pad               ->push_back(tp.getStrip());
+        gemInput_pad_low           ->push_back(tp_data.pad_low);
+        gemInput_pad_high          ->push_back(tp_data.pad_hi);
+      }
+    }  // end for loop
+  }  // end if
+
+  // Phase 2 inputs
+
+  // TO DO
   
   // EMTF Hits
   for (const auto& hit : EMTFHits_) {
@@ -316,6 +382,37 @@ void EMTFNtuple::getHandles(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (verbose_ > 0) std::cout << "******* Getting Handles *******" << std::endl;
 
+
+  geometryTranslator_.checkAndUpdateGeometry(iSetup);
+
+  auto tp_geom = &(geometryTranslator_);
+
+  // Run 3 inputs
+  if(useCSC_){
+     collector_.extractPrimitives(emtf::CSCTag(), tp_geom, iEvent, CSCInputToken_, CSCInputs_);
+  }
+
+  if(useRPC_){
+     collector_.extractPrimitives(emtf::RPCTag(), tp_geom, iEvent, RPCInputToken_, RPCInputs_);
+  }
+
+  if(useGEM_){
+     collector_.extractPrimitives(emtf::GEMTag(), tp_geom, iEvent, GEMInputToken_, GEMInputs_);
+  }
+
+  // Phase 2 inputs
+  if(useIRPC_){
+     collector_.extractPrimitives(emtf::IRPCTag(), tp_geom, iEvent, IRPCInputToken_, IRPCInputs_);
+  }
+
+  if(useME0_){
+     collector_.extractPrimitives(emtf::ME0Tag(), tp_geom, iEvent, ME0InputToken_, ME0Inputs_);
+  }
+
+  if(useDT_){
+     // collector_.extractPrimitives(emtf::DTTag(), tp_geom, iEvent, DTInputToken_, DTInputs_);
+  }
+
   // EMTF hits and tracks
   auto EMTFHits_handle = make_handle(EMTFHits_);
   auto EMTFUnpHits_handle = make_handle(EMTFUnpHits_);
@@ -458,7 +555,6 @@ void EMTFNtuple::makeTree() {
   cscInput_station           = std::make_unique<std::vector<int16_t> >();
   cscInput_ring              = std::make_unique<std::vector<int16_t> >();
   cscInput_sector            = std::make_unique<std::vector<int16_t> >();
-  cscInput_subsector         = std::make_unique<std::vector<int16_t> >();
   cscInput_chamber           = std::make_unique<std::vector<int16_t> >();
   cscInput_cscid             = std::make_unique<std::vector<int16_t> >();
   cscInput_bx                = std::make_unique<std::vector<int16_t> >();
@@ -679,7 +775,6 @@ void EMTFNtuple::makeTree() {
     tree->Branch("cscInput_station"   , &(*cscInput_station   ));
     tree->Branch("cscInput_ring"      , &(*cscInput_ring      ));
     tree->Branch("cscInput_sector"    , &(*cscInput_sector    ));
-    tree->Branch("cscInput_subsector" , &(*cscInput_subsector ));
     tree->Branch("cscInput_chamber"   , &(*cscInput_chamber   ));
     tree->Branch("cscInput_cscid"     , &(*cscInput_cscid     ));
     tree->Branch("cscInput_bx"        , &(*cscInput_bx        ));
@@ -933,7 +1028,6 @@ void EMTFNtuple::fillTree() {
   cscInput_station           ->clear();
   cscInput_ring              ->clear();
   cscInput_sector            ->clear();
-  cscInput_subsector         ->clear();
   cscInput_chamber           ->clear();
   cscInput_cscid             ->clear();
   cscInput_bx                ->clear();
