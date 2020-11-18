@@ -335,8 +335,12 @@ private:
   std::unique_ptr<std::vector<float  > >  emtfTrack_invpt_prompt;
   std::unique_ptr<std::vector<float  > >  emtfTrack_invpt_displ;
   std::unique_ptr<std::vector<float  > >  emtfTrack_phi;        // in degrees
+  std::unique_ptr<std::vector<int32_t> >  emtfTrack_phi_fp;        // in degrees
   std::unique_ptr<std::vector<float  > >  emtfTrack_theta;      // in degrees
+  std::unique_ptr<std::vector<int32_t> >  emtfTrack_theta_fp;      // in degrees
   std::unique_ptr<std::vector<float  > >  emtfTrack_eta;
+  std::unique_ptr<std::vector<int32_t> >  emtfTrack_GMT_phi;
+  std::unique_ptr<std::vector<int32_t> >  emtfTrack_GMT_eta;
   std::unique_ptr<std::vector<int16_t> >  emtfTrack_q;          // charge
   //
   std::unique_ptr<std::vector<uint64_t> > emtfTrack_address;
@@ -402,6 +406,7 @@ private:
   std::unique_ptr<std::vector<float  > >  genPart_phi;
   std::unique_ptr<std::vector<int16_t> >  genPart_q;          // charge
   std::unique_ptr<std::vector<int16_t> >  genPart_ID;      
+  std::unique_ptr<std::vector<int32_t> >  genPart_parentID;      
   std::unique_ptr<std::vector<float  > >  genPart_vx;      
   std::unique_ptr<std::vector<float  > >  genPart_vy;      
   std::unique_ptr<std::vector<float  > >  genPart_vz;      

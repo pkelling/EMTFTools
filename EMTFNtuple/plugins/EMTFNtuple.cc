@@ -111,7 +111,7 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // CSC inputs
   if (useCSC_) {
     for (const auto& tp : CSCInputs_) {
-      if (tp.subsystem() == TriggerPrimitive::kCSC) {
+      if (tp.subsystem() == L1TMuon::kCSC) {
         const CSCDetId& tp_detId = tp.detId<CSCDetId>();
         const CSCData& tp_data = tp.getCSCData();
 
@@ -133,7 +133,7 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   if (useRPC_) {
     for (const auto& tp : RPCInputs_) {
-      if (tp.subsystem() == TriggerPrimitive::kRPC) {
+      if (tp.subsystem() == L1TMuon::kRPC) {
         const RPCDetId& tp_detId = tp.detId<RPCDetId>();
         const RPCData& tp_data = tp.getRPCData();
 
@@ -155,7 +155,7 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   if (useGEM_) {
     for (const auto& tp : GEMInputs_) {
-      if (tp.subsystem() == TriggerPrimitive::kGEM) {
+      if (tp.subsystem() == L1TMuon::kGEM) {
         const GEMDetId& tp_detId = tp.detId<GEMDetId>();
         const GEMData& tp_data = tp.getGEMData();
        
@@ -250,13 +250,17 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     emtfTrack_pt           ->push_back(trk.Pt());
     emtfTrack_xml_pt       ->push_back(trk.Pt_XML());
-    // emtfTrack_pt_dxy       ->push_back(trk.Pt_dxy());
-    // emtfTrack_dxy          ->push_back(trk.Dxy());
+    emtfTrack_pt_dxy       ->push_back(trk.Pt_dxy());
+    emtfTrack_dxy          ->push_back(trk.Dxy());
     // emtfTrack_invpt_prompt ->push_back(trk.Invpt_prompt());
     // emtfTrack_invpt_displ  ->push_back(trk.Invpt_displ());
     emtfTrack_phi          ->push_back(trk.Phi_glob());
+    emtfTrack_phi_fp       ->push_back(trk.Phi_fp());
     emtfTrack_theta        ->push_back(trk.Theta());
+    emtfTrack_theta_fp     ->push_back(trk.Theta_fp());
     emtfTrack_eta          ->push_back(trk.Eta());
+    emtfTrack_GMT_phi      ->push_back(trk.GMT_phi());
+    emtfTrack_GMT_eta      ->push_back(trk.GMT_eta());
     emtfTrack_q            ->push_back(trk.Charge());
     //
     emtfTrack_address      ->push_back(ptlut_data.address);
@@ -307,8 +311,8 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if(useGMTMuons_){  
     for (const auto& muon : *GMTMuons_) {  
       gmtMuon_pt        ->push_back(muon.pt());
-      // gmtMuon_pt_dxy    ->push_back(muon.ptUnconstrained());
-      // gmtMuon_dxy       ->push_back(muon.hwDXY());
+      gmtMuon_pt_dxy    ->push_back(muon.ptUnconstrained());
+      gmtMuon_dxy       ->push_back(muon.hwDXY());
       gmtMuon_phi       ->push_back(muon.phi());
       gmtMuon_eta       ->push_back(muon.eta());
       gmtMuon_q         ->push_back(muon.charge());
@@ -334,12 +338,19 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Gen particles
   if(useGENParts_){
     for (const auto& part : *GENParts_) {
+      if (abs(part.pdgId()) != 13) continue;
+
+      int parentID = -9999;
+      if (part.numberOfMothers() > 0) parentID = dynamic_cast<const reco::GenParticle*>(part.mother(0))->pdgId();
+      if (parentID == part.pdgId()) continue;
+
       genPart_pt         ->push_back(part.pt());
       // genPart_dxy        ->push_back(part.dxy());
       genPart_eta        ->push_back(part.eta());
       genPart_phi        ->push_back(part.phi());
       genPart_q          ->push_back(part.charge());
       genPart_ID         ->push_back(part.pdgId());
+      genPart_parentID   ->push_back(parentID);
       genPart_vx         ->push_back(part.vx());
       genPart_vy         ->push_back(part.vy());
       genPart_vz         ->push_back(part.vz());
@@ -681,15 +692,19 @@ void EMTFNtuple::makeTree() {
   emtfUnpHit_size            = std::make_unique<int32_t>(0);
 
   // EMTF Tracks
-  emtfTrack_pt               = std::make_unique<std::vector<float> >();
-  emtfTrack_xml_pt           = std::make_unique<std::vector<float> >();
-  emtfTrack_pt_dxy           = std::make_unique<std::vector<float> >();
-  emtfTrack_dxy              = std::make_unique<std::vector<float> >();
-  emtfTrack_invpt_prompt     = std::make_unique<std::vector<float> >();
-  emtfTrack_invpt_displ      = std::make_unique<std::vector<float> >();
-  emtfTrack_phi              = std::make_unique<std::vector<float> >();        // in degrees
-  emtfTrack_theta            = std::make_unique<std::vector<float> >();      // in degrees
-  emtfTrack_eta              = std::make_unique<std::vector<float> >();
+  emtfTrack_pt               = std::make_unique<std::vector<float  > >();
+  emtfTrack_xml_pt           = std::make_unique<std::vector<float  > >();
+  emtfTrack_pt_dxy           = std::make_unique<std::vector<float  > >();
+  emtfTrack_dxy              = std::make_unique<std::vector<float  > >();
+  emtfTrack_invpt_prompt     = std::make_unique<std::vector<float  > >();
+  emtfTrack_invpt_displ      = std::make_unique<std::vector<float  > >();
+  emtfTrack_phi              = std::make_unique<std::vector<float  > >();        // in degrees
+  emtfTrack_phi_fp           = std::make_unique<std::vector<int32_t> >();        // in degrees
+  emtfTrack_theta            = std::make_unique<std::vector<float  > >();      // in degrees
+  emtfTrack_theta_fp         = std::make_unique<std::vector<int32_t> >();      // in degrees
+  emtfTrack_eta              = std::make_unique<std::vector<float  > >();
+  emtfTrack_GMT_phi          = std::make_unique<std::vector<int32_t> >();
+  emtfTrack_GMT_eta          = std::make_unique<std::vector<int32_t> >();
   emtfTrack_q                = std::make_unique<std::vector<int16_t> >();          // charge
   //
   emtfTrack_address          = std::make_unique<std::vector<uint64_t> >();
@@ -755,6 +770,7 @@ void EMTFNtuple::makeTree() {
   genPart_phi                = std::make_unique<std::vector<float> >();
   genPart_q                  = std::make_unique<std::vector<int16_t> >();          // charge
   genPart_ID                 = std::make_unique<std::vector<int16_t> >();      
+  genPart_parentID           = std::make_unique<std::vector<int32_t> >();      
   genPart_vx                 = std::make_unique<std::vector<float> >();      
   genPart_vy                 = std::make_unique<std::vector<float> >();      
   genPart_vz                 = std::make_unique<std::vector<float> >();      
@@ -923,8 +939,12 @@ void EMTFNtuple::makeTree() {
     tree->Branch("emtfTrack_invpt_prompt", &(*emtfTrack_invpt_prompt));
     tree->Branch("emtfTrack_invpt_displ" , &(*emtfTrack_invpt_displ ));
     tree->Branch("emtfTrack_phi"         , &(*emtfTrack_phi         ));
+    tree->Branch("emtfTrack_phi_fp"      , &(*emtfTrack_phi_fp      ));
     tree->Branch("emtfTrack_theta"       , &(*emtfTrack_theta       ));
+    tree->Branch("emtfTrack_theta_fp"    , &(*emtfTrack_theta_fp    ));
     tree->Branch("emtfTrack_eta"         , &(*emtfTrack_eta         ));
+    tree->Branch("emtfTrack_GMT_phi"     , &(*emtfTrack_GMT_phi     ));
+    tree->Branch("emtfTrack_GMT_eta"     , &(*emtfTrack_GMT_eta     ));
     tree->Branch("emtfTrack_q"           , &(*emtfTrack_q           ));
     //
     tree->Branch("emtfTrack_address"     , &(*emtfTrack_address     ));
@@ -998,6 +1018,7 @@ void EMTFNtuple::makeTree() {
     tree->Branch("genPart_eta"       , &(*genPart_eta       ));
     tree->Branch("genPart_q"         , &(*genPart_q         ));
     tree->Branch("genPart_ID"        , &(*genPart_ID        ));
+    tree->Branch("genPart_parentID"  , &(*genPart_parentID  ));
     tree->Branch("genPart_vx"        , &(*genPart_vx        ));
     tree->Branch("genPart_vy"        , &(*genPart_vy        ));
     tree->Branch("genPart_vz"        , &(*genPart_vz        ));
@@ -1161,8 +1182,12 @@ void EMTFNtuple::fillTree() {
   emtfTrack_invpt_prompt     ->clear();
   emtfTrack_invpt_displ      ->clear();
   emtfTrack_phi              ->clear();
+  emtfTrack_phi_fp           ->clear();
   emtfTrack_theta            ->clear();
+  emtfTrack_theta_fp         ->clear();
   emtfTrack_eta              ->clear();
+  emtfTrack_GMT_phi          ->clear();
+  emtfTrack_GMT_eta          ->clear();
   emtfTrack_q                ->clear();
   //
   emtfTrack_address          ->clear();
@@ -1228,6 +1253,7 @@ void EMTFNtuple::fillTree() {
   genPart_phi                ->clear();
   genPart_q                  ->clear();
   genPart_ID                 ->clear();
+  genPart_parentID           ->clear();
   genPart_vx                 ->clear();
   genPart_vy                 ->clear();
   genPart_vz                 ->clear();

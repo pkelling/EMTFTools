@@ -38,16 +38,16 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
     useDT            = cms.bool(False),
 
 
-    useEMTFHits      = cms.bool(True),
+    useEMTFHits      = cms.bool(False),
     useEMTFUnpHits   = cms.bool(False),
     
-    useEMTFTracks    = cms.bool(True),
+    useEMTFTracks    = cms.bool(False),
     useEMTFUnpTracks = cms.bool(False),
     
-    useGMTMuons      = cms.bool(True),
+    useGMTMuons      = cms.bool(False),
     useGMTUnpMuons   = cms.bool(False),
     
-    useGENParts      = cms.bool(True),
+    useGENParts      = cms.bool(False),
     useEventInfo     = cms.bool(False),
 
   )
