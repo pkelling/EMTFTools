@@ -35,10 +35,11 @@ float DPhi(double phi1,double phi2){
 
 int makeTruthComp(){
 
-  TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/HTo2LongLivedTo4mu_combined/EMTFNtuple_HTo2LLTo4Mu_combined_cmssw_11_0_2_fwImplementation_NNv5.root";
+  TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/HTo2LongLivedTo4mu_combined/EMTFNtuple_HTo2LLTo4Mu_combined_cmssw_11_0_2_fwImplementation_NNv4.root";
 
   // load trees
   TString tree = "EMTFNtuple/tree";
+  TFile *fout =new TFile("output_files/comparisons/truth/NNv4/NNv4TruthCompPlots.root","RECREATE");
 
 
   TChain * cc=new TChain(tree);
@@ -90,13 +91,56 @@ int makeTruthComp(){
 
 
   TCanvas* canv1 = new TCanvas("c_str", "c_str", 1200, 1200);
+  TPad* pad = new TPad("","",0,0,1,1);  
+
+  pad->SetLeftMargin(0.2);
+  pad->SetBottomMargin(0.1);
+  // pad->SetRightMargin(0);
+  // pad->SetLeftMargin(0.2);
+  pad->cd();
 
 
-   TH2F* h_pt = new TH2F("gen_vs_l1_pt", "gen_vs_l1_pt", 90, -5, 85, 90, -5, 85);
-   TH2F* h_d0 = new TH2F("gen_vs_l1_d0", "gen_vs_l1_d0", 50, -100, 100, 50, -100, 100);
+  TH2F* h_pt = new TH2F("gen_vs_l1_pt", "gen_vs_l1_pt", 90, -5, 85, 90, -5, 85);
+  TH2F* h_d0 = new TH2F("gen_vs_l1_d0", "gen_vs_l1_d0", 50, -100, 100, 50, -100, 100);
 
-   TH1F* h_dPt = new TH1F("dPt", "dPt", 100, -100, 100);
-   TH1F* h_dD0 = new TH1F("dD0", "dD0", 100, -100, 100);
+  TH1F* h_dPt = new TH1F("dPt", "dPt", 101, -100.5, 100.5);
+  TH1F* h_dPtEta1 = new TH1F("dPtEta1", "dPtEta1", 101, -100.5, 100.5);
+  TH1F* h_dPtEta2 = new TH1F("dPtEta2", "dPtEta2", 101, -100.5, 100.5);
+  TH1F* h_dPtEta3 = new TH1F("dPtEta3", "dPtEta3", 101, -100.5, 100.5);
+  
+  TH1F* h_dD0 = new TH1F("dD0", "dD0", 101, -100.5, 100.5);
+  TH1F* h_dD0Eta1 = new TH1F("dD0Eta1", "dD0Eta1", 101, -100.5, 100.5);
+  TH1F* h_dD0Eta2 = new TH1F("dD0Eta2", "dD0Eta2", 101, -100.5, 100.5);
+  TH1F* h_dD0Eta3 = new TH1F("dD0Eta3", "dD0Eta3", 101, -100.5, 100.5);
+
+  TH1F* h_dPtOverPt = new TH1F("dPtOverPt", "dPtOverPt", 110, -5.5, 5.5);
+  TH1F* h_dPtOverPtEta1 = new TH1F("dPtOverPtEta1", "dPtOverPtEta1", 110, -5.5, 5.5);
+  TH1F* h_dPtOverPtEta2 = new TH1F("dPtOverPtEta2", "dPtOverPtEta2", 110, -5.5, 5.5);
+  TH1F* h_dPtOverPtEta3 = new TH1F("dPtOverPtEta3", "dPtOverPtEta3", 110, -5.5, 5.5);
+  
+  TH1F* h_dD0OverD0 = new TH1F("dD0OverD0", "dD0OverD0", 61, -30.5, 30.5);
+  TH1F* h_dD0OverD0Eta1 = new TH1F("dD0OverD0Eta1", "dD0OverD0Eta1", 61, -30.5, 30.5);
+  TH1F* h_dD0OverD0Eta2 = new TH1F("dD0OverD0Eta2", "dD0OverD0Eta2", 61, -30.5, 30.5);
+  TH1F* h_dD0OverD0Eta3 = new TH1F("dD0OverD0Eta3", "dD0OverD0Eta3", 61, -30.5, 30.5);
+
+
+  Double_t etaArray[8] = {-2.5, -2.1, -1.6, -1.2, 1.2, 1.6, 2.1, 2.5};
+
+  TH2D *h_2D_eta_dPt = new TH2D("etaVsdPt", "", 7, etaArray,101, -100.5, 100.5);
+  TH2D *h_2D_eta_dPtOverPt = new TH2D("etaVsdPtOverPt", "", 7, etaArray,21, -10.5, 10.5);
+  TH2D *h_2D_eta_dD0 = new TH2D("etaVsdD0", "", 7, etaArray,101, -100.5, 100.5);
+  TH2D *h_2D_eta_dD0OverD0 = new TH2D("etaVsdD0OverD0", "", 7, etaArray,61, -30.5, 30.5);
+
+  TH2D *h_2D_pt_dPt = new TH2D("ptVsdPt", "", 12, 0, 60, 141, -70.5, 70.5);
+  TH2D *h_2D_pt_dPtEta1 = new TH2D("ptVsdPtEta1", "", 12, 0, 60, 141, -70.5, 70.5);
+  TH2D *h_2D_pt_dPtEta2 = new TH2D("ptVsdPtEta2", "", 12, 0, 60, 141, -70.5, 70.5);
+  TH2D *h_2D_pt_dPtEta3 = new TH2D("ptVsdPtEta3", "", 12, 0, 60, 141, -70.5, 70.5);
+
+  TH2D *h_2D_pt_dPtOverPt = new TH2D("ptVsdPtOverPt", "", 12, 0, 60, 110, -5.5, 5.5);
+  TH2D *h_2D_pt_dPtOverPtEta1 = new TH2D("ptVsdPtOverPtEta1", "", 12, 0, 60, 110, -5.5, 5.5);
+  TH2D *h_2D_pt_dPtOverPtEta2 = new TH2D("ptVsdPtOverPtEta2", "", 12, 0, 60, 110, -5.5, 5.5);
+  TH2D *h_2D_pt_dPtOverPtEta3 = new TH2D("ptVsdPtOverPtEta3", "", 12, 0, 60, 110, -5.5, 5.5);
+
    
 
    // TH1F* h_eta = new TH1F("eta", "eta", 100, -100, 100);
@@ -137,7 +181,9 @@ int makeTruthComp(){
         if(abs(genPartID[j]) != 13 ) continue;
         // cpnvert displaced eta and phi to prompt-like and calculate dR between gen and l1 muon
 
-        r = (z_ME2 - abs(genPartVz[j]))/abs(TMath::SinH(genPartEta[j]));
+        if (genPartEta[j] > 0) r = abs(z_ME2 - genPartVz[j])/abs(TMath::SinH(genPartEta[j]));
+        else r = abs(-z_ME2 - genPartVz[j])/abs(TMath::SinH(genPartEta[j]));        
+
         float xStar = genPartVx[j] + r * TMath::Cos(genPartPhi[j]);
         float yStar = genPartVy[j] + r * TMath::Sin(genPartPhi[j]);
         rStar = TMath::Sqrt(xStar * xStar + yStar * yStar);
@@ -220,6 +266,43 @@ int makeTruthComp(){
         h_dPt->Fill(emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
         h_dD0->Fill(emtfTrackDxy[k_EMTF] - d0);
 
+        if (abs(gmtMuonEta[i]) > 2.1) {
+          h_dPtEta3->Fill(emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+          h_dPtOverPtEta3->Fill((emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+          h_dD0Eta3->Fill(emtfTrackDxy[k_EMTF] - d0);
+          h_dD0OverD0Eta3->Fill((emtfTrackDxy[k_EMTF] - d0)/d0);
+          h_2D_pt_dPtEta3->Fill(genPartPt[k],emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+          h_2D_pt_dPtOverPtEta3->Fill(genPartPt[k],(emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+        }
+        else if (abs(gmtMuonEta[i]) > 1.6){
+          h_dPtEta2->Fill(emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+          h_dPtOverPtEta2->Fill((emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+          h_dD0Eta2->Fill(emtfTrackDxy[k_EMTF] - d0);
+          h_dD0OverD0Eta2->Fill((emtfTrackDxy[k_EMTF] - d0)/d0);
+          h_2D_pt_dPtEta2->Fill(genPartPt[k],emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+          h_2D_pt_dPtOverPtEta2->Fill(genPartPt[k],(emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+        }
+        else if (abs(gmtMuonEta[i]) > 1.2){
+          h_dPtEta1->Fill(emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+          h_dPtOverPtEta1->Fill((emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+          h_dD0Eta1->Fill(emtfTrackDxy[k_EMTF] - d0);
+          h_dD0OverD0Eta1->Fill((emtfTrackDxy[k_EMTF] - d0)/d0);
+          h_2D_pt_dPtEta1->Fill(genPartPt[k],emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+          h_2D_pt_dPtOverPtEta1->Fill(genPartPt[k],(emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+        }
+
+        h_dPtOverPt->Fill((emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+        h_dD0OverD0->Fill((emtfTrackDxy[k_EMTF] - d0)/d0);
+
+        h_2D_eta_dPt->Fill(gmtMuonEta[i],emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+        h_2D_eta_dPtOverPt->Fill(gmtMuonEta[i],(emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+        h_2D_eta_dD0->Fill(gmtMuonEta[i],emtfTrackDxy[k_EMTF] - d0);
+        h_2D_eta_dD0OverD0->Fill(gmtMuonEta[i],(emtfTrackDxy[k_EMTF] - d0)/d0);
+
+        h_2D_pt_dPt->Fill(genPartPt[k],emtfTrackPtDxy[k_EMTF] - genPartPt[k]);
+        h_2D_pt_dPtOverPt->Fill(genPartPt[k],(emtfTrackPtDxy[k_EMTF] - genPartPt[k])/genPartPt[k]);
+
+
 
       }
 
@@ -241,22 +324,231 @@ int makeTruthComp(){
   h_dPt->GetXaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
   h_dPt->GetYaxis()->SetTitle("# of Muons / bin");
 
+  h_dPtEta1->GetXaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_dPtEta1->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dPtEta2->GetXaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_dPtEta2->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dPtEta3->GetXaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_dPtEta3->GetYaxis()->SetTitle("# of Muons / bin");
+
   h_dD0->GetXaxis()->SetTitle("L1 d_{0} - GEN d_{0} [cm]");
   h_dD0->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dD0Eta1->GetXaxis()->SetTitle("L1 d_{0} - GEN d_{0} [cm]");
+  h_dD0Eta1->GetYaxis()->SetTitle("# of Muons / bin");
+  
+  h_dD0Eta2->GetXaxis()->SetTitle("L1 d_{0} - GEN d_{0} [cm]");
+  h_dD0Eta2->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dD0Eta3->GetXaxis()->SetTitle("L1 d_{0} - GEN d_{0} [cm]");
+  h_dD0Eta3->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dPtOverPt->GetXaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_dPtOverPt->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dPtOverPtEta1->GetXaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_dPtOverPtEta1->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dPtOverPtEta2->GetXaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_dPtOverPtEta2->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dPtOverPtEta3->GetXaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_dPtOverPtEta3->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dD0OverD0->GetXaxis()->SetTitle("#Delta d_{0} / d_{0}");
+  h_dD0OverD0->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dD0OverD0Eta1->GetXaxis()->SetTitle("#Delta d_{0} / d_{0}");
+  h_dD0OverD0Eta1->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dD0OverD0Eta2->GetXaxis()->SetTitle("#Delta d_{0} / d_{0}");
+  h_dD0OverD0Eta2->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_dD0OverD0Eta3->GetXaxis()->SetTitle("#Delta d_{0} / d_{0}");
+  h_dD0OverD0Eta3->GetYaxis()->SetTitle("# of Muons / bin");
+
+  h_2D_eta_dPt->GetYaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_2D_eta_dPt->GetXaxis()->SetTitle("L1 #eta");
+
+  h_2D_eta_dPtOverPt->GetYaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_2D_eta_dPtOverPt->GetXaxis()->SetTitle("L1 #eta");
+
+  h_2D_eta_dD0->GetYaxis()->SetTitle("L1 d_{0} - GEN d_{0} [cm]");
+  h_2D_eta_dD0->GetXaxis()->SetTitle("L1 #eta");
+
+  h_2D_eta_dD0OverD0->GetYaxis()->SetTitle("#Delta d_{0} / d_{0}");
+  h_2D_eta_dD0OverD0->GetXaxis()->SetTitle("L1 #eta");
+
+  h_2D_pt_dPt->GetYaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_2D_pt_dPt->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_2D_pt_dPtEta1->GetYaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_2D_pt_dPtEta1->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_2D_pt_dPtEta2->GetYaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_2D_pt_dPtEta2->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_2D_pt_dPtEta3->GetYaxis()->SetTitle("L1 p_{T} - GEN p_{T} [GeV]");
+  h_2D_pt_dPtEta3->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_2D_pt_dPtOverPt->GetYaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_2D_pt_dPtOverPt->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_2D_pt_dPtOverPtEta1->GetYaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_2D_pt_dPtOverPtEta1->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_2D_pt_dPtOverPtEta2->GetYaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_2D_pt_dPtOverPtEta2->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_2D_pt_dPtOverPtEta3->GetYaxis()->SetTitle("#Delta p_{T} / p_{T}");
+  h_2D_pt_dPtOverPtEta3->GetXaxis()->SetTitle("GEN p_{T}");
+
+  h_dPt->SetLineWidth(3);
+  h_dPt->SetLineColor(1);
+
+  h_dPtEta1->SetLineWidth(3);
+  h_dPtEta1->SetLineColor(1);
+
+  h_dPtEta2->SetLineWidth(3);
+  h_dPtEta2->SetLineColor(1);
+
+  h_dPtEta3->SetLineWidth(3);
+  h_dPtEta3->SetLineColor(1);
+
+  h_dPtOverPt->SetLineWidth(3);
+  h_dPtOverPt->SetLineColor(1);
+
+  h_dPtOverPtEta1->SetLineWidth(3);
+  h_dPtOverPtEta1->SetLineColor(1);
+
+  h_dPtOverPtEta2->SetLineWidth(3);
+  h_dPtOverPtEta2->SetLineColor(1);
+
+  h_dPtOverPtEta3->SetLineWidth(3);
+  h_dPtOverPtEta3->SetLineColor(1);
+
+  h_dD0->SetLineWidth(3);
+  h_dD0->SetLineColor(1);
+
+  h_dD0Eta1->SetLineWidth(3);
+  h_dD0Eta1->SetLineColor(1);
+
+  h_dD0Eta2->SetLineWidth(3);
+  h_dD0Eta2->SetLineColor(1);
+
+  h_dD0Eta3->SetLineWidth(3);
+  h_dD0Eta3->SetLineColor(1);
+
+  h_dD0OverD0->SetLineWidth(3);
+  h_dD0OverD0->SetLineColor(1);
+
+  h_dD0OverD0Eta1->SetLineWidth(3);
+  h_dD0OverD0Eta1->SetLineColor(1);
+
+  h_dD0OverD0Eta2->SetLineWidth(3);
+  h_dD0OverD0Eta2->SetLineColor(1);
+
+  h_dD0OverD0Eta3->SetLineWidth(3);
+  h_dD0OverD0Eta3->SetLineColor(1);
+
+  gStyle->SetOptStat(0);
+
 
 
 
   h_pt->Draw("colz");
-  canv1->SaveAs("output_files/comparisons/2D_genVsL1_pT_NNv5_HTo2LL_combined_EMTFNtuple.pdf");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/2D_genVsL1_pT_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
 
   h_d0->Draw("colz");
-  canv1->SaveAs("output_files/comparisons/2D_genVsL1_d0_NNv5_HTo2LL_combined_EMTFNtuple.pdf");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/2D_genVsL1_d0_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
 
   h_dD0->Draw("");
-  canv1->SaveAs("output_files/comparisons/dD0_genVsL1_NNv5_HTo2LL_combined_EMTFNtuple.pdf");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dD0Eta1->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0Eta1_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dD0Eta2->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0Eta2_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dD0Eta3->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0Eta3_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
 
   h_dPt->Draw("");
-  canv1->SaveAs("output_files/comparisons/dPt_genVsL1_NNv5_HTo2LL_combined_EMTFNtuple.pdf");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPt_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dPtEta1->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtEta1_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dPtEta2->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtEta2_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dPtEta3->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtEta3_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dPtOverPt->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtOverPt_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dPtOverPtEta1->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtOverPtEta1_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dPtOverPtEta2->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtOverPtEta2_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dPtOverPtEta3->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtOverPtEta3_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dD0OverD0->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0OverD0_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dD0OverD0Eta1->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0OverD0Eta1_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dD0OverD0Eta2->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0OverD0Eta2_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_dD0OverD0Eta3->Draw("");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0OverD0Eta3_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_eta_dPt->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsEta_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_eta_dPtOverPt->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtOverPtVsEta_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_eta_dD0->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0VsEta_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_eta_dD0OverD0->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dD0OverD0VsEta_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPt->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPt_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPtEta1->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPtEta1_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPtEta2->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPtEta2_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPtEta3->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPtEta3_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPtOverPt->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPtOverPt_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPtOverPtEta1->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPtOverPtEta1_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPtOverPtEta2->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPtOverPtEta2_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  h_2D_pt_dPtOverPtEta3->Draw("colz");
+  pad->SaveAs("output_files/comparisons/truth/NNv4/dPtVsPtOverPtEta3_genVsL1_NNv4_HTo2LL_combined_EMTFNtuple_newStar.pdf");
+
+  fout->Write();
 
 
   return 0;

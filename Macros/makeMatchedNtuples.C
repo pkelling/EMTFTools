@@ -300,6 +300,7 @@ int makeMatchedNtuples(){
 
 
 
+    // Find EMTF tracks matched to GMT muon and fill L1 muon info 
     for (int i=0; i<*gmtMuonSize; i++){
       // if(abs(l1mueta[i]) < 1.24 or abs(l1mueta[i]) > 2.5) continue;
 

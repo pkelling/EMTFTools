@@ -1,6 +1,4 @@
-/* L1T Analysis plotting script
- * module: Efficiency plotter
- * Author: George Karathanasis georgios.karathanasis@cern.ch
+/* EMTF Efficiency Analysis plotting script
  *
  */
 
