@@ -38,7 +38,7 @@ int DefaultColor(int j,int i){
 int makeEfficiencyPlots(){
 
   //read data
-  TString ntuple = "/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_HTo2LLTo4Mu_combined_cmssw_11_0_2_fwImplementation_NNv4.root";
+  TString ntuple = "/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_HTo2LLTo4Mu_combined_cmssw_11_2_0_pre8_fwImplementation_NNv5.root";
   TChain * cc=new TChain("tree");
   cc->Add(ntuple);
 
@@ -433,24 +433,24 @@ int makeEfficiencyPlots(){
   // canvasname.push_back("eff_dxy_pt20_5_dxy25_BDT");
   // canvasname.push_back("eff_eta_pt20_5_dxy25_BDT");
 
-  canvasname.push_back("eff_pt_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_pt_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_pt_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_d0_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_d0_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_d0_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_dxy_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_dxy_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_dxy_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_eta_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_eta_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_eta_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_phi_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_phi_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_phi_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_Lxy_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_Lxy_pt20_NNv4vsBDT");
-  canvasname.push_back("eff_Lxy_pt20_NNv4vsBDT");
+  canvasname.push_back("eff_pt_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_pt_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_pt_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_d0_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_d0_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_d0_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_dxy_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_dxy_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_dxy_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_eta_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_eta_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_eta_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_phi_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_phi_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_phi_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_Lxy_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_Lxy_pt20_NNv5vsBDT");
+  canvasname.push_back("eff_Lxy_pt20_NNv5vsBDT");
 
   // canvasname.push_back("eff_pt_pt20_10_combined");
   // canvasname.push_back("eff_dxy_pt20_10_combined");

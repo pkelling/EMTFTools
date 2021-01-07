@@ -35,12 +35,12 @@ float DPhi(double phi1,double phi2){
 
 int makeMatchedNtuples(){
 
-  TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/HTo2LongLivedTo4mu_combined/EMTFNtuple_HTo2LLTo4Mu_combined_cmssw_11_0_2_fwImplementation_NNv5.root";
+  TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/HTo2LongLivedTo4mu_combined/EMTFNtuple_HTo2LLTo4Mu_combined_cmssw_11_2_0_pre8_fwImplementation_NNv5.root";
 
   // load trees
   TString tree = "EMTFNtuple/tree";
 
-  TFile *fout =new TFile("/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_HTo2LLTo4Mu_combined_cmssw_11_0_2_fwImplementation_NNv5.root","RECREATE");
+  TFile *fout =new TFile("/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_HTo2LLTo4Mu_combined_cmssw_11_2_0_pre8_fwImplementation_NNv5.root","RECREATE");
   TTree * t1 =new TTree("tree","tree");
 
 
@@ -69,9 +69,9 @@ int makeMatchedNtuples(){
   TTreeReaderValue<int32_t> gmtMuonSize(reader,"gmtMuon_size");
   TTreeReaderArray<float  > gmtMuonPt(reader,"gmtMuon_pt");
   TTreeReaderArray<float  > gmtMuonPtDxy(reader,"gmtMuon_pt_dxy");
-  TTreeReaderArray<float  > gmtMuonPtDxyNN(reader,"gmtMuon_pt_dxyNN");
+  // TTreeReaderArray<float  > gmtMuonPtDxyNN(reader,"gmtMuon_pt_dxyNN");
   TTreeReaderArray<short  > gmtMuonDxy(reader,"gmtMuon_dxy");
-  TTreeReaderArray<float  > gmtMuonDxyNN(reader,"gmtMuon_dxyNN");
+  // TTreeReaderArray<float  > gmtMuonDxyNN(reader,"gmtMuon_dxyNN");
   TTreeReaderArray<float  > gmtMuonPhi(reader,"gmtMuon_phi");
   TTreeReaderArray<float  > gmtMuonEta(reader,"gmtMuon_eta");
   TTreeReaderArray<short  > gmtMuonCharge(reader,"gmtMuon_q");
@@ -197,7 +197,8 @@ int makeMatchedNtuples(){
       // std::cout << gmtMuon << " gmt muon" << std::endl;
 
       // cpnvert displaced eta and phi to prompt-like and calculate dR between gen and l1 muon
-      r = (z_ME2 - abs(genPartVz[i]))/abs(TMath::SinH(genPartEta[i]));
+      if (genPartEta[i] > 0) r = abs(z_ME2 - genPartVz[i])/abs(TMath::SinH(genPartEta[i]));
+      else r = abs(-z_ME2 - genPartVz[i])/abs(TMath::SinH(genPartEta[i]));      
       float xStar = genPartVx[i] + r * TMath::Cos(genPartPhi[i]);
       float yStar = genPartVy[i] + r * TMath::Sin(genPartPhi[i]);
       rStar = TMath::Sqrt(xStar * xStar + yStar * yStar);
