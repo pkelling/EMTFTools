@@ -28,6 +28,8 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TMath.h"
+
 
 // CMSSW includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -44,6 +46,12 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCChamber.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+
 
 #include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
@@ -66,6 +74,7 @@ public:
 
 private:
   void beginJob() override;
+  auto getHitRefs(const l1t::EMTFTrack& trk, const l1t::EMTFHitCollection& hits);
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -73,6 +82,7 @@ private:
   void getHandles(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillTree();
   void makeTree();
+
 
 
   template<typename T>
@@ -115,6 +125,9 @@ private:
   
   const edm::InputTag   GENPartTag_;
 
+  // Reco CSC segments
+  const edm::InputTag   CSCSegmentTag_;
+
   const std::string     outFileName_;
   int verbose_;
 
@@ -141,6 +154,10 @@ private:
   bool useGENParts_;
   bool useEventInfo_;
 
+  bool useCSCSegments_;
+
+  bool isReco_;
+
 
   // Run 3 TPs
   edm::EDGetTokenT<emtf::CSCTag::digi_collection>   CSCInputToken_;
@@ -164,6 +181,8 @@ private:
   edm::EDGetTokenT<l1t::MuonBxCollection>           GMTUnpMuonToken_;
   
   edm::EDGetTokenT<reco::GenParticleCollection>     GENPartToken_;
+
+  edm::EDGetTokenT<CSCSegmentCollection>            CSCSegmentToken_;
 
   
   GeometryTranslator geometryTranslator_;
@@ -189,6 +208,8 @@ private:
   const l1t::MuonBxCollection*       GMTUnpMuons_;
 
   const reco::GenParticleCollection* GENParts_;
+
+  const CSCSegmentCollection* CSCSegments_;
 
   // TTree
   TTree* tree;
@@ -343,7 +364,6 @@ private:
   std::unique_ptr<std::vector<int32_t> >  emtfTrack_GMT_eta;
   std::unique_ptr<std::vector<int16_t> >  emtfTrack_q;          // charge
   //
-  std::unique_ptr<std::vector<uint64_t> > emtfTrack_address;
   std::unique_ptr<std::vector<int16_t> >  emtfTrack_mode;
   std::unique_ptr<std::vector<int16_t> >  emtfTrack_endcap;
   std::unique_ptr<std::vector<int16_t> >  emtfTrack_sector;
@@ -354,6 +374,25 @@ private:
   std::unique_ptr<std::vector<int32_t> >  emtfTrack_hitref3;
   std::unique_ptr<std::vector<int32_t> >  emtfTrack_hitref4;
   std::unique_ptr<int32_t              >  emtfTrack_size;
+
+  std::unique_ptr<std::vector<int16_t> >  emtfTrack_straightness;
+  // PtLUT information
+  std::unique_ptr<std::vector<uint64_t> > emtfTrack_ptLUT_address;
+  std::unique_ptr<std::vector<uint16_t> > emtfTrack_ptLUT_mode;
+  std::unique_ptr<std::vector<uint16_t> > emtfTrack_ptLUT_theta;
+  std::unique_ptr<std::vector<uint16_t> > emtfTrack_ptLUT_st1_ring2;
+  std::unique_ptr<std::vector<uint16_t> > emtfTrack_ptLUT_eta;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_deltaPh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_deltaTh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_signPh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_signTh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_cpattern;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_fr;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_bt_vi;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_bt_hi;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_bt_ci;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfTrack_ptLUT_bt_si;
+
 
   // EMTF Unpacked Tracks
   std::unique_ptr<std::vector<float  > >  emtfUnpTrack_pt;
@@ -367,7 +406,6 @@ private:
   std::unique_ptr<std::vector<float  > >  emtfUnpTrack_eta;
   std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_q;          // charge
   //
-  std::unique_ptr<std::vector<uint64_t> > emtfUnpTrack_address;
   std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_mode;
   std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_endcap;
   std::unique_ptr<std::vector<int16_t> >  emtfUnpTrack_sector;
@@ -378,6 +416,23 @@ private:
   std::unique_ptr<std::vector<int32_t> >  emtfUnpTrack_hitref3;
   std::unique_ptr<std::vector<int32_t> >  emtfUnpTrack_hitref4;
   std::unique_ptr<int32_t              >  emtfUnpTrack_size;
+  // PtLUT information
+  std::unique_ptr<std::vector<uint64_t> > emtfUnpTrack_ptLUT_address;
+  std::unique_ptr<std::vector<uint16_t> > emtfUnpTrack_ptLUT_mode;
+  std::unique_ptr<std::vector<uint16_t> > emtfUnpTrack_ptLUT_theta;
+  std::unique_ptr<std::vector<uint16_t> > emtfUnpTrack_ptLUT_st1_ring2;
+  std::unique_ptr<std::vector<uint16_t> > emtfUnpTrack_ptLUT_eta;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_deltaPh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_deltaTh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_signPh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_signTh;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_cpattern;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_fr;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_bt_vi;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_bt_hi;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_bt_ci;
+  std::unique_ptr<std::vector<std::vector<uint16_t> > > emtfUnpTrack_ptLUT_bt_si;
+
 
   // GMT Muons
   std::unique_ptr<std::vector<float  > >  gmtMuon_pt;
@@ -418,6 +473,29 @@ private:
   std::unique_ptr<std::vector<float  > >  eventInfo_npv;  // getTrueNumInteractions()
   std::unique_ptr<std::vector<int32_t> >  eventInfo_nvtx; // getPU_NumInteractions()
   std::unique_ptr<int32_t              >  eventInfo_size;
+
+
+  // CSC Segment info
+  std::unique_ptr<std::vector<float  > >  cscSegment_locX;
+  std::unique_ptr<std::vector<float  > >  cscSegment_locY;
+  std::unique_ptr<std::vector<float  > >  cscSegment_globX;
+  std::unique_ptr<std::vector<float  > >  cscSegment_globY;
+  std::unique_ptr<std::vector<float  > >  cscSegment_globZ;
+  std::unique_ptr<std::vector<float  > >  cscSegment_eta;
+  std::unique_ptr<std::vector<float  > >  cscSegment_phi;
+  std::unique_ptr<std::vector<float  > >  cscSegment_theta;
+  std::unique_ptr<std::vector<float  > >  cscSegment_chi2;
+  std::unique_ptr<std::vector<float  > >  cscSegment_dirX;
+  std::unique_ptr<std::vector<float  > >  cscSegment_dirY;
+  std::unique_ptr<std::vector<float  > >  cscSegment_dirZ;
+  std::unique_ptr<std::vector<float  > >  cscSegment_bend_theta;
+  std::unique_ptr<std::vector<float  > >  cscSegment_bend_phi;
+  std::unique_ptr<std::vector<int32_t> >  cscSegment_endcap;
+  std::unique_ptr<std::vector<int32_t> >  cscSegment_ring;
+  std::unique_ptr<std::vector<int32_t> >  cscSegment_station;
+  std::unique_ptr<std::vector<int32_t> >  cscSegment_chamber;
+  std::unique_ptr<std::vector<int32_t> >  cscSegment_sector;
+  std::unique_ptr<std::vector<int32_t> >  cscSegment_CSC_ID;
 
 
 
