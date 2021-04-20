@@ -37,6 +37,8 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet& iConfig):
 
   GENPartTag_         (iConfig.getParameter<edm::InputTag>("GENPartTag")),
 
+  CSCSegmentTag_      (iConfig.getParameter<edm::InputTag>("CSCSegmentTag")),
+
   outFileName_        (iConfig.getParameter<std::string>("outFileName")),
   verbose_            (iConfig.getUntrackedParameter<int> ("verbosity")),
 
@@ -61,7 +63,11 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet& iConfig):
   useGMTUnpMuons_     (iConfig.getParameter<bool>("useGMTUnpMuons")),
 
   useGENParts_        (iConfig.getParameter<bool>("useGENParts")),
-  useEventInfo_       (iConfig.getParameter<bool>("useEventInfo"))
+  useEventInfo_       (iConfig.getParameter<bool>("useEventInfo")),
+
+  useCSCSegments_     (iConfig.getParameter<bool>("useCSCSegments")),
+
+  isReco_             (iConfig.getParameter<bool>("isReco"))
 
 {
   usesResource("TFileService");  // shared resources
@@ -88,9 +94,76 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet& iConfig):
 
   GENPartToken_        = consumes<reco::GenParticleCollection>       (GENPartTag_);
 
+  CSCSegmentToken_     = consumes<CSCSegmentCollection>               (CSCSegmentTag_);
+
 }
 
 EMTFNtuple::~EMTFNtuple() {}
+
+auto EMTFNtuple::getHitRefs(const l1t::EMTFTrack& trk, const l1t::EMTFHitCollection& hits){
+  using namespace l1t;
+
+    std::vector<int32_t> hit_refs = {-1, -1, -1, -1};
+    EMTFHitCollection::const_iterator conv_hits_it1  = trk.Hits().begin();
+    EMTFHitCollection::const_iterator conv_hits_end1 = trk.Hits().end();
+
+    for (; conv_hits_it1 != conv_hits_end1; ++conv_hits_it1) {
+      EMTFHitCollection::const_iterator conv_hits_it2  = hits.begin();
+      EMTFHitCollection::const_iterator conv_hits_end2 = hits.end();
+
+      for (; conv_hits_it2 != conv_hits_end2; ++conv_hits_it2) {
+        const EMTFHit& conv_hit_i = *conv_hits_it1;
+        const EMTFHit& conv_hit_j = *conv_hits_it2;
+
+        // See L1Trigger/L1TMuonEndCap/src/PrimitiveMatching.cc
+        // All these must match: [bx_history][station][chamber][segment]
+        if (
+          (conv_hit_i.Subsystem()  == conv_hit_j.Subsystem()) &&
+          (conv_hit_i.PC_station() == conv_hit_j.PC_station()) &&
+          (conv_hit_i.PC_chamber() == conv_hit_j.PC_chamber()) &&
+          (conv_hit_i.Ring()       == conv_hit_j.Ring()) &&  // because of ME1/1
+          (conv_hit_i.Strip()      == conv_hit_j.Strip()) &&
+          (conv_hit_i.Wire()       == conv_hit_j.Wire()) &&
+          (conv_hit_i.Pattern()    == conv_hit_j.Pattern()) &&
+          (conv_hit_i.BX()         == conv_hit_j.BX()) &&
+          (conv_hit_i.Strip_low()  == conv_hit_j.Strip_low()) && // For RPC clusters
+          (conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&  // For RPC clusters
+          (conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
+          (conv_hit_i.Endcap()     == conv_hit_j.Endcap()) && // Needed only in the ntupler
+          (conv_hit_i.Sector()     == conv_hit_j.Sector()) && // Needed only in the ntupler
+          true
+        ) {
+          int istation = (conv_hit_i.Station() - 1);
+          auto hit_ref = std::distance(hits.begin(), conv_hits_it2);
+          hit_refs.at(istation) = hit_ref;
+        }  // end if
+      }  // end loop over hits
+    }  // end loop over trk.Hits()
+
+    // Sanity check
+    // for (int istation = 0; istation < 4; ++istation) {
+    //   bool has_hit = trk.Mode() & (1 << (3 - istation));
+    //   bool has_hit_check = (hit_refs.at(istation) != -1);
+
+    //   if (has_hit != has_hit_check) {
+    //     std::cout << "[ERROR] mode: " << trk.Mode() << " station: " << istation << std::endl;
+    //     EMTFHitCollection::const_iterator conv_hits_it1  = trk.Hits().begin();
+    //     EMTFHitCollection::const_iterator conv_hits_end1 = trk.Hits().end();
+    //     for (; conv_hits_it1 != conv_hits_end1; ++conv_hits_it1) {
+    //       const EMTFHit& conv_hit_i = *conv_hits_it1;
+    //       std::cout << ".. " << conv_hit_i.Subsystem() << " " << conv_hit_i.PC_station() << " " << conv_hit_i.PC_chamber() << " " << conv_hit_i.Ring() << " " << conv_hit_i.Strip() << " " << conv_hit_i.Wire() << " " << conv_hit_i.Pattern() << " " << conv_hit_i.BX() << " " << conv_hit_i.Endcap() << " " << conv_hit_i.Sector() << std::endl;
+    //     }
+    //     EMTFHitCollection::const_iterator conv_hits_it2  = hits.begin();
+    //     EMTFHitCollection::const_iterator conv_hits_end2 = hits.end();
+    //     for (; conv_hits_it2 != conv_hits_end2; ++conv_hits_it2) {
+    //       const EMTFHit& conv_hit_j = *conv_hits_it2;
+    //       std::cout << ".... " << conv_hit_j.Subsystem() << " " << conv_hit_j.PC_station() << " " << conv_hit_j.PC_chamber() << " " << conv_hit_j.Ring() << " " << conv_hit_j.Strip() << " " << conv_hit_j.Wire() << " " << conv_hit_j.Pattern() << " " << conv_hit_j.BX() << " " << conv_hit_j.Endcap() << " " << conv_hit_j.Sector() << std::endl;
+    //     }
+    //   }
+    //   assert(has_hit == has_hit_check);
+    // }
+    return hit_refs;
+}
 
 
 // ------------ method called for each event  ------------
@@ -241,10 +314,12 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   (*emtfUnpHit_size) = EMTFUnpHits_.size();
 
 
+
   // EMTF Tracks
   for (const auto& trk : EMTFTracks_) {
-    // const std::vector<int32_t>& hit_refs = get_hit_refs(trk, emuHits_);
-    // assert(hit_refs.size() == 4);
+
+    const std::vector<int32_t>& hit_refs = getHitRefs(trk, EMTFHits_);
+    assert(hit_refs.size() == 4);
 
     const l1t::EMTFPtLUT& ptlut_data = trk.PtLUT();
 
@@ -263,23 +338,57 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     emtfTrack_GMT_eta      ->push_back(trk.GMT_eta());
     emtfTrack_q            ->push_back(trk.Charge());
     //
-    emtfTrack_address      ->push_back(ptlut_data.address);
     emtfTrack_mode         ->push_back(trk.Mode());
     emtfTrack_endcap       ->push_back(trk.Endcap());
     emtfTrack_sector       ->push_back(trk.Sector());
     emtfTrack_bx           ->push_back(trk.BX());
     emtfTrack_nhits        ->push_back(trk.Hits().size());
-    // emtfTrack_hitref1    ->push_back(hit_refs.at(0));
-    // emtfTrack_hitref2    ->push_back(hit_refs.at(1));
-    // emtfTrack_hitref3    ->push_back(hit_refs.at(2));
-    // emtfTrack_hitref4    ->push_back(hit_refs.at(3));  
+    emtfTrack_straightness ->push_back(trk.Straightness());
+    emtfTrack_hitref1    ->push_back(hit_refs.at(0));
+    emtfTrack_hitref2    ->push_back(hit_refs.at(1));
+    emtfTrack_hitref3    ->push_back(hit_refs.at(2));
+    emtfTrack_hitref4    ->push_back(hit_refs.at(3)); 
+
+
+    emtfTrack_ptLUT_address      ->push_back(ptlut_data.address);
+    emtfTrack_ptLUT_mode         ->push_back(ptlut_data.mode);
+    emtfTrack_ptLUT_theta        ->push_back(ptlut_data.theta);
+    emtfTrack_ptLUT_st1_ring2    ->push_back(ptlut_data.st1_ring2);
+    emtfTrack_ptLUT_eta          ->push_back(ptlut_data.eta);
+
+
+    // 6 of these quantities per track
+    std::vector<uint16_t> deltaPh = {ptlut_data.delta_ph[0], ptlut_data.delta_ph[1], ptlut_data.delta_ph[2], ptlut_data.delta_ph[3], ptlut_data.delta_ph[4], ptlut_data.delta_ph[5]};
+    std::vector<uint16_t> deltaTh = {ptlut_data.delta_th[0], ptlut_data.delta_th[1], ptlut_data.delta_th[2], ptlut_data.delta_th[3], ptlut_data.delta_th[4], ptlut_data.delta_th[5]};
+    std::vector<uint16_t> signPh  = {ptlut_data.sign_ph[0], ptlut_data.sign_ph[1], ptlut_data.sign_ph[2], ptlut_data.sign_ph[3], ptlut_data.sign_ph[4], ptlut_data.sign_ph[5]};
+    std::vector<uint16_t> signTh  = {ptlut_data.sign_th[0], ptlut_data.sign_th[1], ptlut_data.sign_th[2], ptlut_data.sign_th[3], ptlut_data.sign_th[4], ptlut_data.sign_th[5]};
+    // 4 of these quantities per track
+    std::vector<uint16_t> cpattern = {ptlut_data.cpattern[0], ptlut_data.cpattern[1], ptlut_data.cpattern[2], ptlut_data.cpattern[3]};
+    std::vector<uint16_t> fr       = {ptlut_data.fr[0], ptlut_data.fr[1], ptlut_data.fr[2], ptlut_data.fr[3]};
+    // 5 of these quantities per track
+    std::vector<uint16_t> bt_vi = {ptlut_data.bt_vi[0], ptlut_data.bt_vi[1], ptlut_data.bt_vi[2], ptlut_data.bt_vi[3], ptlut_data.bt_vi[4]};
+    std::vector<uint16_t> bt_hi = {ptlut_data.bt_hi[0], ptlut_data.bt_hi[1], ptlut_data.bt_hi[2], ptlut_data.bt_hi[3], ptlut_data.bt_hi[4]};
+    std::vector<uint16_t> bt_ci = {ptlut_data.bt_ci[0], ptlut_data.bt_ci[1], ptlut_data.bt_ci[2], ptlut_data.bt_ci[3], ptlut_data.bt_ci[4]};
+    std::vector<uint16_t> bt_si = {ptlut_data.bt_si[0], ptlut_data.bt_si[1], ptlut_data.bt_si[2], ptlut_data.bt_si[3], ptlut_data.bt_si[4]};
+
+    emtfTrack_ptLUT_deltaPh      ->push_back(deltaPh);
+    emtfTrack_ptLUT_deltaTh      ->push_back(deltaTh);
+    emtfTrack_ptLUT_signPh       ->push_back(signPh);
+    emtfTrack_ptLUT_signTh       ->push_back(signTh);      
+    emtfTrack_ptLUT_cpattern     ->push_back(cpattern);
+    emtfTrack_ptLUT_fr           ->push_back(fr);
+    emtfTrack_ptLUT_bt_vi        ->push_back(bt_vi);
+    emtfTrack_ptLUT_bt_hi        ->push_back(bt_hi);
+    emtfTrack_ptLUT_bt_ci        ->push_back(bt_ci);
+    emtfTrack_ptLUT_bt_si        ->push_back(bt_si);
+ 
   }
   (*emtfTrack_size) = EMTFTracks_.size();
 
   // EMTF Unpacked Tracks
   for (const auto& trk : EMTFUnpTracks_) {
-    // const std::vector<int32_t>& hit_refs = get_hit_refs(trk, emuHits_);
-    // assert(hit_refs.size() == 4);
+    const std::vector<int32_t>& hit_refs = getHitRefs(trk, EMTFUnpHits_);
+    assert(hit_refs.size() == 4);
 
     const l1t::EMTFPtLUT& ptlut_data = trk.PtLUT();
 
@@ -294,16 +403,46 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     emtfUnpTrack_eta          ->push_back(trk.Eta());
     emtfUnpTrack_q            ->push_back(trk.Charge());
     //
-    emtfUnpTrack_address      ->push_back(ptlut_data.address);
     emtfUnpTrack_mode         ->push_back(trk.Mode());
     emtfUnpTrack_endcap       ->push_back(trk.Endcap());
     emtfUnpTrack_sector       ->push_back(trk.Sector());
     emtfUnpTrack_bx           ->push_back(trk.BX());
     emtfUnpTrack_nhits        ->push_back(trk.Hits().size());
-    // emtfUnpTrack_hitref1    ->push_back(hit_refs.at(0));
-    // emtfUnpTrack_hitref2    ->push_back(hit_refs.at(1));
-    // emtfUnpTrack_hitref3    ->push_back(hit_refs.at(2));
-    // emtfUnpTrack_hitref4    ->push_back(hit_refs.at(3)); 
+    emtfUnpTrack_hitref1    ->push_back(hit_refs.at(0));
+    emtfUnpTrack_hitref2    ->push_back(hit_refs.at(1));
+    emtfUnpTrack_hitref3    ->push_back(hit_refs.at(2));
+    emtfUnpTrack_hitref4    ->push_back(hit_refs.at(3)); 
+
+    emtfUnpTrack_ptLUT_address      ->push_back(ptlut_data.address);
+    emtfUnpTrack_ptLUT_mode         ->push_back(ptlut_data.mode);
+    emtfUnpTrack_ptLUT_theta        ->push_back(ptlut_data.theta);
+    emtfUnpTrack_ptLUT_st1_ring2    ->push_back(ptlut_data.st1_ring2);
+    emtfUnpTrack_ptLUT_eta          ->push_back(ptlut_data.eta);
+
+    // 6 of these quantities per track
+    std::vector<uint16_t> deltaPh = {ptlut_data.delta_ph[0], ptlut_data.delta_ph[1], ptlut_data.delta_ph[2], ptlut_data.delta_ph[3], ptlut_data.delta_ph[4], ptlut_data.delta_ph[5]};
+    std::vector<uint16_t> deltaTh = {ptlut_data.delta_th[0], ptlut_data.delta_th[1], ptlut_data.delta_th[2], ptlut_data.delta_th[3], ptlut_data.delta_th[4], ptlut_data.delta_th[5]};
+    std::vector<uint16_t> signPh  = {ptlut_data.sign_ph[0], ptlut_data.sign_ph[1], ptlut_data.sign_ph[2], ptlut_data.sign_ph[3], ptlut_data.sign_ph[4], ptlut_data.sign_ph[5]};
+    std::vector<uint16_t> signTh  = {ptlut_data.sign_th[0], ptlut_data.sign_th[1], ptlut_data.sign_th[2], ptlut_data.sign_th[3], ptlut_data.sign_th[4], ptlut_data.sign_th[5]};
+    // 4 of these quantities per track
+    std::vector<uint16_t> cpattern = {ptlut_data.cpattern[0], ptlut_data.cpattern[1], ptlut_data.cpattern[2], ptlut_data.cpattern[3]};
+    std::vector<uint16_t> fr       = {ptlut_data.fr[0], ptlut_data.fr[1], ptlut_data.fr[2], ptlut_data.fr[3]};
+    // 5 of these quantities per track
+    std::vector<uint16_t> bt_vi = {ptlut_data.bt_vi[0], ptlut_data.bt_vi[1], ptlut_data.bt_vi[2], ptlut_data.bt_vi[3], ptlut_data.bt_vi[4]};
+    std::vector<uint16_t> bt_hi = {ptlut_data.bt_hi[0], ptlut_data.bt_hi[1], ptlut_data.bt_hi[2], ptlut_data.bt_hi[3], ptlut_data.bt_hi[4]};
+    std::vector<uint16_t> bt_ci = {ptlut_data.bt_ci[0], ptlut_data.bt_ci[1], ptlut_data.bt_ci[2], ptlut_data.bt_ci[3], ptlut_data.bt_ci[4]};
+    std::vector<uint16_t> bt_si = {ptlut_data.bt_si[0], ptlut_data.bt_si[1], ptlut_data.bt_si[2], ptlut_data.bt_si[3], ptlut_data.bt_si[4]};
+
+    emtfUnpTrack_ptLUT_deltaPh      ->push_back(deltaPh);
+    emtfUnpTrack_ptLUT_deltaTh      ->push_back(deltaTh);
+    emtfUnpTrack_ptLUT_signPh       ->push_back(signPh);
+    emtfUnpTrack_ptLUT_signTh       ->push_back(signTh);      
+    emtfUnpTrack_ptLUT_cpattern     ->push_back(cpattern);
+    emtfUnpTrack_ptLUT_fr           ->push_back(fr);
+    emtfUnpTrack_ptLUT_bt_vi        ->push_back(bt_vi);
+    emtfUnpTrack_ptLUT_bt_hi        ->push_back(bt_hi);
+    emtfUnpTrack_ptLUT_bt_ci        ->push_back(bt_ci);
+    emtfUnpTrack_ptLUT_bt_si        ->push_back(bt_si);
   }
   (*emtfUnpTrack_size) = EMTFUnpTracks_.size();
 
@@ -356,6 +495,53 @@ void EMTFNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       genPart_vz         ->push_back(part.vz());
     }
   }
+
+  edm::ESHandle<CSCGeometry> cscGeom;
+  iSetup.get<MuonGeometryRecord>().get(cscGeom);
+
+  // CSC Segments
+  if(useCSCSegments_){
+    for(const auto& cscSeg : *CSCSegments_){
+      // Set CSCDetId to get position of segment in detector
+      CSCDetId id  = (CSCDetId)(cscSeg).cscDetId();
+
+      // Get CSC segment global position from CSC geometry
+      // See https://github.com/aminnj/CSCValidationRunning/blob/me42/RecoLocalMuon/CSCValidation/src/CSCValidation.cc#L1153
+      LocalPoint locPos = (cscSeg).localPosition();
+      const CSCChamber * cscChamb = cscGeom->chamber(id);
+      GlobalPoint globPos = cscChamb->toGlobal(locPos);
+
+      // globPos.phi() has bizzare properties when you multiply it directly
+      // It 'rotates' in a [-pi, pi] range instead of scaling
+      float globPos_theta = ((globPos.theta() * 180. / M_PI) > 90 ) ? (180 - (globPos.theta() * 180. / M_PI)) : (globPos.theta() * 180. / M_PI);
+
+      cscSegment_locX          ->push_back(locPos.x());
+      cscSegment_locY          ->push_back(locPos.y());
+      cscSegment_globX         ->push_back(globPos.x());
+      cscSegment_globY         ->push_back(globPos.y());
+      cscSegment_globZ         ->push_back(globPos.z());
+      cscSegment_eta           ->push_back(globPos.eta());
+      cscSegment_phi           ->push_back(globPos.phi() * 180. / M_PI);
+      cscSegment_theta         ->push_back(globPos_theta);
+      cscSegment_chi2          ->push_back(cscSeg.chi2());
+      cscSegment_dirX          ->push_back(cscSeg.localDirection().x());
+      cscSegment_dirY          ->push_back(cscSeg.localDirection().y());
+      cscSegment_dirZ          ->push_back(cscSeg.localDirection().z());
+
+      float bend_theta = TMath::ATan2( cscSeg.localDirection().y(), abs(cscSeg.localDirection().z()) );
+      float bend_phi   = TMath::ATan2( cscSeg.localDirection().x(), abs(cscSeg.localDirection().z()) );
+
+      cscSegment_bend_theta    ->push_back(bend_theta);
+      cscSegment_bend_phi      ->push_back(bend_phi);
+
+      cscSegment_endcap        ->push_back(id.zendcap());
+      cscSegment_ring          ->push_back(id.ring());
+      cscSegment_station       ->push_back(id.station());
+      cscSegment_chamber       ->push_back(id.chamber());
+      cscSegment_sector        ->push_back(id.triggerSector());
+      cscSegment_CSC_ID        ->push_back(id.triggerCscId());
+    }
+  }
   
 
   // Event Info
@@ -388,6 +574,7 @@ void EMTFNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   descriptions.addDefault(desc);
 
 }
+
 
 void EMTFNtuple::getHandles(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
@@ -422,6 +609,25 @@ void EMTFNtuple::getHandles(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if(useDT_){
      // collector_.extractPrimitives(emtf::DTTag(), tp_geom, iEvent, DTInputToken_, DTInputs_);
+  }
+
+  auto CSCSegments_handle = make_handle(CSCSegments_);
+
+
+  if(useCSCSegments_ && isReco_){
+    if(!CSCSegmentToken_.isUninitialized()){
+      iEvent.getByToken(CSCSegmentToken_, CSCSegments_handle);
+    }
+    if(!CSCSegments_handle.isValid()){
+      if (firstEvent_)  edm::LogError("NtupleMaker") << "Cannot get the product: " << CSCSegmentTag_;
+      CSCSegments_ = nullptr;
+    } else {
+      CSCSegments_ = CSCSegments_handle.product();
+    }
+
+  }
+  else {
+    CSCSegments_ = nullptr;
   }
 
   // EMTF hits and tracks
@@ -707,7 +913,6 @@ void EMTFNtuple::makeTree() {
   emtfTrack_GMT_eta          = std::make_unique<std::vector<int32_t> >();
   emtfTrack_q                = std::make_unique<std::vector<int16_t> >();          // charge
   //
-  emtfTrack_address          = std::make_unique<std::vector<uint64_t> >();
   emtfTrack_mode             = std::make_unique<std::vector<int16_t> >();
   emtfTrack_endcap           = std::make_unique<std::vector<int16_t> >();
   emtfTrack_sector           = std::make_unique<std::vector<int16_t> >();
@@ -718,6 +923,25 @@ void EMTFNtuple::makeTree() {
   emtfTrack_hitref3          = std::make_unique<std::vector<int32_t> >();
   emtfTrack_hitref4          = std::make_unique<std::vector<int32_t> >();
   emtfTrack_size             = std::make_unique<int32_t>(0);
+
+  emtfTrack_straightness     = std::make_unique<std::vector<int16_t> >();
+
+  // PtLUT information
+  emtfTrack_ptLUT_address    = std::make_unique<std::vector<uint64_t> >();
+  emtfTrack_ptLUT_mode       = std::make_unique<std::vector<uint16_t> >();
+  emtfTrack_ptLUT_theta      = std::make_unique<std::vector<uint16_t> >();
+  emtfTrack_ptLUT_st1_ring2  = std::make_unique<std::vector<uint16_t> >();
+  emtfTrack_ptLUT_eta        = std::make_unique<std::vector<uint16_t> >();
+  emtfTrack_ptLUT_deltaPh    = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_deltaTh    = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_signPh     = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_signTh     = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_cpattern   = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_fr         = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_bt_vi      = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_bt_hi      = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_bt_ci      = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfTrack_ptLUT_bt_si      = std::make_unique<std::vector<std::vector<uint16_t> > >();
 
   // EMTF Unpacked Tracks
   emtfUnpTrack_pt            = std::make_unique<std::vector<float> >();
@@ -731,7 +955,6 @@ void EMTFNtuple::makeTree() {
   emtfUnpTrack_eta           = std::make_unique<std::vector<float> >();
   emtfUnpTrack_q             = std::make_unique<std::vector<int16_t> >();          // charge
   //
-  emtfUnpTrack_address       = std::make_unique<std::vector<uint64_t> >();
   emtfUnpTrack_mode          = std::make_unique<std::vector<int16_t> >();
   emtfUnpTrack_endcap        = std::make_unique<std::vector<int16_t> >();
   emtfUnpTrack_sector        = std::make_unique<std::vector<int16_t> >();
@@ -742,6 +965,22 @@ void EMTFNtuple::makeTree() {
   emtfUnpTrack_hitref3       = std::make_unique<std::vector<int32_t> >();
   emtfUnpTrack_hitref4       = std::make_unique<std::vector<int32_t> >();
   emtfUnpTrack_size          = std::make_unique<int32_t>(0);
+  // PtLUT information
+  emtfUnpTrack_ptLUT_address    = std::make_unique<std::vector<uint64_t> >();
+  emtfUnpTrack_ptLUT_mode       = std::make_unique<std::vector<uint16_t> >();
+  emtfUnpTrack_ptLUT_theta      = std::make_unique<std::vector<uint16_t> >();
+  emtfUnpTrack_ptLUT_st1_ring2  = std::make_unique<std::vector<uint16_t> >();
+  emtfUnpTrack_ptLUT_eta        = std::make_unique<std::vector<uint16_t> >();
+  emtfUnpTrack_ptLUT_deltaPh    = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_deltaTh    = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_signPh     = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_signTh     = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_cpattern   = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_fr         = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_bt_vi      = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_bt_hi      = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_bt_ci      = std::make_unique<std::vector<std::vector<uint16_t> > >();
+  emtfUnpTrack_ptLUT_bt_si      = std::make_unique<std::vector<std::vector<uint16_t> > >();
 
   // GMT Muons
   gmtMuon_pt                 = std::make_unique<std::vector<float> >();
@@ -782,6 +1021,30 @@ void EMTFNtuple::makeTree() {
   eventInfo_npv              = std::make_unique<std::vector<float> >();  // getTrueNumInteractions()
   eventInfo_nvtx             = std::make_unique<std::vector<int32_t> >(); // getPU_NumInteractions()
   eventInfo_size             = std::make_unique<int32_t>(0);
+
+
+  // CSC Segment info
+  cscSegment_locX            = std::make_unique<std::vector<float> >();
+  cscSegment_locY            = std::make_unique<std::vector<float> >();
+  cscSegment_globX           = std::make_unique<std::vector<float> >();
+  cscSegment_globY           = std::make_unique<std::vector<float> >();
+  cscSegment_globZ           = std::make_unique<std::vector<float> >();
+  cscSegment_eta             = std::make_unique<std::vector<float> >();
+  cscSegment_phi             = std::make_unique<std::vector<float> >();
+  cscSegment_theta           = std::make_unique<std::vector<float> >();
+  cscSegment_chi2            = std::make_unique<std::vector<float> >();
+  cscSegment_dirX            = std::make_unique<std::vector<float> >();
+  cscSegment_dirY            = std::make_unique<std::vector<float> >();
+  cscSegment_dirZ            = std::make_unique<std::vector<float> >();
+  cscSegment_bend_theta      = std::make_unique<std::vector<float> >();
+  cscSegment_bend_phi        = std::make_unique<std::vector<float> >();
+
+  cscSegment_endcap          = std::make_unique<std::vector<int32_t> >();
+  cscSegment_ring            = std::make_unique<std::vector<int32_t> >();
+  cscSegment_station         = std::make_unique<std::vector<int32_t> >();
+  cscSegment_chamber         = std::make_unique<std::vector<int32_t> >();
+  cscSegment_sector          = std::make_unique<std::vector<int32_t> >();
+  cscSegment_CSC_ID          = std::make_unique<std::vector<int32_t> >();
 
   // Set branches
 
@@ -947,7 +1210,6 @@ void EMTFNtuple::makeTree() {
     tree->Branch("emtfTrack_GMT_eta"     , &(*emtfTrack_GMT_eta     ));
     tree->Branch("emtfTrack_q"           , &(*emtfTrack_q           ));
     //
-    tree->Branch("emtfTrack_address"     , &(*emtfTrack_address     ));
     tree->Branch("emtfTrack_mode"        , &(*emtfTrack_mode        ));
     tree->Branch("emtfTrack_endcap"      , &(*emtfTrack_endcap      ));
     tree->Branch("emtfTrack_sector"      , &(*emtfTrack_sector      ));
@@ -958,6 +1220,24 @@ void EMTFNtuple::makeTree() {
     tree->Branch("emtfTrack_hitref3"     , &(*emtfTrack_hitref3     ));
     tree->Branch("emtfTrack_hitref4"     , &(*emtfTrack_hitref4     ));
     tree->Branch("emtfTrack_size"        , &(*emtfTrack_size        ));
+
+    tree->Branch("emtfTrack_straightness"      , &(*emtfTrack_straightness      ));
+    // PtLUT information
+    tree->Branch("emtfTrack_ptLUT_address"     , &(*emtfTrack_ptLUT_address    ));
+    tree->Branch("emtfTrack_ptLUT_mode"        , &(*emtfTrack_ptLUT_mode       ));
+    tree->Branch("emtfTrack_ptLUT_theta"       , &(*emtfTrack_ptLUT_theta      ));
+    tree->Branch("emtfTrack_ptLUT_st1_ring2"   , &(*emtfTrack_ptLUT_st1_ring2  ));
+    tree->Branch("emtfTrack_ptLUT_eta"         , &(*emtfTrack_ptLUT_eta        ));
+    tree->Branch("emtfTrack_ptLUT_deltaPh"     , &(*emtfTrack_ptLUT_deltaPh    ));
+    tree->Branch("emtfTrack_ptLUT_deltaTh"     , &(*emtfTrack_ptLUT_deltaTh    ));
+    tree->Branch("emtfTrack_ptLUT_signPh"      , &(*emtfTrack_ptLUT_signPh     ));
+    tree->Branch("emtfTrack_ptLUT_signTh"      , &(*emtfTrack_ptLUT_signTh     ));
+    tree->Branch("emtfTrack_ptLUT_cpattern"    , &(*emtfTrack_ptLUT_cpattern   ));
+    tree->Branch("emtfTrack_ptLUT_fr"          , &(*emtfTrack_ptLUT_fr         ));
+    tree->Branch("emtfTrack_ptLUT_bt_vi"       , &(*emtfTrack_ptLUT_bt_vi      ));
+    tree->Branch("emtfTrack_ptLUT_bt_hi"       , &(*emtfTrack_ptLUT_bt_hi      ));
+    tree->Branch("emtfTrack_ptLUT_bt_ci"       , &(*emtfTrack_ptLUT_bt_ci      ));
+    tree->Branch("emtfTrack_ptLUT_bt_si"       , &(*emtfTrack_ptLUT_bt_si      ));
   }
 
   // EMTF Unpacked Tracks
@@ -973,7 +1253,6 @@ void EMTFNtuple::makeTree() {
     tree->Branch("emtfUnpTrack_eta"         , &(*emtfUnpTrack_eta         ));
     tree->Branch("emtfUnpTrack_q"           , &(*emtfUnpTrack_q           ));
     //
-    tree->Branch("emtfUnpTrack_address"     , &(*emtfUnpTrack_address     ));
     tree->Branch("emtfUnpTrack_mode"        , &(*emtfUnpTrack_mode        ));
     tree->Branch("emtfUnpTrack_endcap"      , &(*emtfUnpTrack_endcap      ));
     tree->Branch("emtfUnpTrack_sector"      , &(*emtfUnpTrack_sector      ));
@@ -984,6 +1263,22 @@ void EMTFNtuple::makeTree() {
     tree->Branch("emtfUnpTrack_hitref3"     , &(*emtfUnpTrack_hitref3     ));
     tree->Branch("emtfUnpTrack_hitref4"     , &(*emtfUnpTrack_hitref4     ));
     tree->Branch("emtfUnpTrack_size"        , &(*emtfUnpTrack_size        ));
+    // PtLUT information
+    tree->Branch("emtfUnpTrack_ptLUT_address"     , &(*emtfUnpTrack_ptLUT_address    ));
+    tree->Branch("emtfUnpTrack_ptLUT_mode"        , &(*emtfUnpTrack_ptLUT_mode       ));
+    tree->Branch("emtfUnpTrack_ptLUT_theta"       , &(*emtfUnpTrack_ptLUT_theta      ));
+    tree->Branch("emtfUnpTrack_ptLUT_st1_ring2"   , &(*emtfUnpTrack_ptLUT_st1_ring2  ));
+    tree->Branch("emtfUnpTrack_ptLUT_eta"         , &(*emtfUnpTrack_ptLUT_eta        ));
+    tree->Branch("emtfUnpTrack_ptLUT_deltaPh"     , &(*emtfUnpTrack_ptLUT_deltaPh    ));
+    tree->Branch("emtfUnpTrack_ptLUT_deltaTh"     , &(*emtfUnpTrack_ptLUT_deltaTh    ));
+    tree->Branch("emtfUnpTrack_ptLUT_signPh"      , &(*emtfUnpTrack_ptLUT_signPh     ));
+    tree->Branch("emtfUnpTrack_ptLUT_signTh"      , &(*emtfUnpTrack_ptLUT_signTh     ));
+    tree->Branch("emtfUnpTrack_ptLUT_cpattern"    , &(*emtfUnpTrack_ptLUT_cpattern   ));
+    tree->Branch("emtfUnpTrack_ptLUT_fr"          , &(*emtfUnpTrack_ptLUT_fr         ));
+    tree->Branch("emtfUnpTrack_ptLUT_bt_vi"       , &(*emtfUnpTrack_ptLUT_bt_vi      ));
+    tree->Branch("emtfUnpTrack_ptLUT_bt_hi"       , &(*emtfUnpTrack_ptLUT_bt_hi      ));
+    tree->Branch("emtfUnpTrack_ptLUT_bt_ci"       , &(*emtfUnpTrack_ptLUT_bt_ci      ));
+    tree->Branch("emtfUnpTrack_ptLUT_bt_si"       , &(*emtfUnpTrack_ptLUT_bt_si      ));
   }
 
   // GMT muons
@@ -1032,6 +1327,31 @@ void EMTFNtuple::makeTree() {
     tree->Branch("eventInfo_npv"       , &(*eventInfo_npv       ));
     tree->Branch("eventInfo_nvtx"      , &(*eventInfo_nvtx      ));
     tree->Branch("eventInfo_size"      , &(*eventInfo_size      ));
+  }
+
+  // Use CSC segments
+  if(useCSCSegments_){
+    tree->Branch("cscSegment_locX"      , &(*cscSegment_locX        ));
+    tree->Branch("cscSegment_locY"      , &(*cscSegment_locY        ));
+    tree->Branch("cscSegment_globX"     , &(*cscSegment_globX       ));
+    tree->Branch("cscSegment_globY"     , &(*cscSegment_globY       ));
+    tree->Branch("cscSegment_globZ"     , &(*cscSegment_globZ       ));
+    tree->Branch("cscSegment_eta"       , &(*cscSegment_eta         ));
+    tree->Branch("cscSegment_phi"       , &(*cscSegment_phi         ));
+    tree->Branch("cscSegment_theta"     , &(*cscSegment_theta       ));
+    tree->Branch("cscSegment_chi2"      , &(*cscSegment_chi2        ));
+    tree->Branch("cscSegment_dirX"      , &(*cscSegment_dirX        ));
+    tree->Branch("cscSegment_dirY"      , &(*cscSegment_dirY        ));
+    tree->Branch("cscSegment_dirZ"      , &(*cscSegment_dirZ        ));
+    tree->Branch("cscSegment_bend_theta", &(*cscSegment_bend_theta  ));
+    tree->Branch("cscSegment_bend_phi"  , &(*cscSegment_bend_phi    ));
+
+    tree->Branch("cscSegment_endcap"    , &(*cscSegment_endcap      ));
+    tree->Branch("cscSegment_ring"      , &(*cscSegment_ring        ));
+    tree->Branch("cscSegment_station"   , &(*cscSegment_station     ));
+    tree->Branch("cscSegment_chamber"   , &(*cscSegment_chamber     ));
+    tree->Branch("cscSegment_sector"    , &(*cscSegment_sector      ));
+    tree->Branch("cscSegment_CSC_ID"    , &(*cscSegment_CSC_ID      ));
   }
 
 }
@@ -1190,7 +1510,6 @@ void EMTFNtuple::fillTree() {
   emtfTrack_GMT_eta          ->clear();
   emtfTrack_q                ->clear();
   //
-  emtfTrack_address          ->clear();
   emtfTrack_mode             ->clear();
   emtfTrack_endcap           ->clear();
   emtfTrack_sector           ->clear();
@@ -1201,6 +1520,24 @@ void EMTFNtuple::fillTree() {
   emtfTrack_hitref3          ->clear();
   emtfTrack_hitref4          ->clear();
   (*emtfTrack_size)          = 0;
+
+  emtfTrack_straightness     ->clear();
+  // PtLUT information
+	emtfTrack_ptLUT_address    ->clear();
+	emtfTrack_ptLUT_mode       ->clear();
+	emtfTrack_ptLUT_theta      ->clear();
+	emtfTrack_ptLUT_st1_ring2  ->clear();
+	emtfTrack_ptLUT_eta        ->clear();
+	emtfTrack_ptLUT_deltaPh    ->clear();
+	emtfTrack_ptLUT_deltaTh    ->clear();
+	emtfTrack_ptLUT_signPh     ->clear();
+	emtfTrack_ptLUT_signTh     ->clear();
+	emtfTrack_ptLUT_cpattern   ->clear();
+	emtfTrack_ptLUT_fr         ->clear();
+	emtfTrack_ptLUT_bt_vi      ->clear();
+	emtfTrack_ptLUT_bt_hi      ->clear();
+	emtfTrack_ptLUT_bt_ci      ->clear();
+	emtfTrack_ptLUT_bt_si      ->clear();
 
   // EMTF Unpacked Tracks
   emtfUnpTrack_pt            ->clear();
@@ -1214,7 +1551,6 @@ void EMTFNtuple::fillTree() {
   emtfUnpTrack_eta           ->clear();
   emtfUnpTrack_q             ->clear();
   //
-  emtfUnpTrack_address       ->clear();
   emtfUnpTrack_mode          ->clear();
   emtfUnpTrack_endcap        ->clear();
   emtfUnpTrack_sector        ->clear();
@@ -1225,6 +1561,22 @@ void EMTFNtuple::fillTree() {
   emtfUnpTrack_hitref3       ->clear();
   emtfUnpTrack_hitref4       ->clear();
   (*emtfUnpTrack_size)       = 0;
+  // PtLUT information
+  emtfUnpTrack_ptLUT_address    ->clear();
+  emtfUnpTrack_ptLUT_mode       ->clear();
+  emtfUnpTrack_ptLUT_theta      ->clear();
+  emtfUnpTrack_ptLUT_st1_ring2  ->clear();
+  emtfUnpTrack_ptLUT_eta        ->clear();
+  emtfUnpTrack_ptLUT_deltaPh    ->clear();
+  emtfUnpTrack_ptLUT_deltaTh    ->clear();
+  emtfUnpTrack_ptLUT_signPh     ->clear();
+  emtfUnpTrack_ptLUT_signTh     ->clear();
+  emtfUnpTrack_ptLUT_cpattern   ->clear();
+  emtfUnpTrack_ptLUT_fr         ->clear();
+  emtfUnpTrack_ptLUT_bt_vi      ->clear();
+  emtfUnpTrack_ptLUT_bt_hi      ->clear();
+  emtfUnpTrack_ptLUT_bt_ci      ->clear();
+  emtfUnpTrack_ptLUT_bt_si      ->clear();
 
   // GMT Muons
   gmtMuon_pt                 ->clear();
@@ -1265,6 +1617,29 @@ void EMTFNtuple::fillTree() {
   eventInfo_npv              ->clear();
   eventInfo_nvtx             ->clear();
   (*eventInfo_size)          = 0;
+
+  // CSC Segment info
+  cscSegment_locX            ->clear();
+  cscSegment_locY            ->clear();
+  cscSegment_globX           ->clear();
+  cscSegment_globY           ->clear();
+  cscSegment_globZ           ->clear();
+  cscSegment_eta             ->clear();
+  cscSegment_phi             ->clear();
+  cscSegment_theta           ->clear();
+  cscSegment_chi2            ->clear();
+  cscSegment_dirX            ->clear();
+  cscSegment_dirY            ->clear();
+  cscSegment_dirZ            ->clear();
+  cscSegment_bend_theta      ->clear();
+  cscSegment_bend_phi        ->clear();
+
+  cscSegment_endcap          ->clear();
+  cscSegment_ring            ->clear();
+  cscSegment_station         ->clear();
+  cscSegment_chamber         ->clear();
+  cscSegment_sector          ->clear();
+  cscSegment_CSC_ID          ->clear();
 
 }
 

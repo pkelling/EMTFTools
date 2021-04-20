@@ -22,6 +22,8 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
 
     GENPartTag       = cms.InputTag('genParticles'),
 
+    CSCSegmentTag    = cms.InputTag('cscSegments'),
+
     outFileName      = cms.string('EMTFNtuple.root'),
     verbosity        = cms.untracked.int32(0),
 
@@ -38,7 +40,7 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
     useDT            = cms.bool(False),
 
 
-    useEMTFHits      = cms.bool(False),
+    useEMTFHits      = cms.bool(True),
     useEMTFUnpHits   = cms.bool(False),
     
     useEMTFTracks    = cms.bool(True),
@@ -47,7 +49,11 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
     useGMTMuons      = cms.bool(True),
     useGMTUnpMuons   = cms.bool(False),
     
-    useGENParts      = cms.bool(False),
+    useGENParts      = cms.bool(True),
     useEventInfo     = cms.bool(False),
+    
+    useCSCSegments   = cms.bool(True),
+
+    isReco           = cms.bool(True),
 
   )

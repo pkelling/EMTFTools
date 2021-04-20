@@ -35,12 +35,12 @@ float DPhi(double phi1,double phi2){
 
 int makeMatchedNtuples(){
 
-  TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/HTo2LongLivedTo4mu_combined/EMTFNtuple_HTo2LLTo4Mu_combined_cmssw_11_2_0_pre8_fwImplementation_NNv5.root";
+  TString file = "/afs/cern.ch/user/e/eyigitba/L1T_dev/CMSSW_11_3_0_pre5_ptLUT/src/EMTFNtuple.root";
 
   // load trees
   TString tree = "EMTFNtuple/tree";
 
-  TFile *fout =new TFile("/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_HTo2LLTo4Mu_combined_cmssw_11_2_0_pre8_fwImplementation_NNv5.root","RECREATE");
+  TFile *fout =new TFile("/afs/cern.ch/user/e/eyigitba/L1T_dev/CMSSW_11_3_0_pre5_ptLUT/src/MatchedNtuple.root","RECREATE");
   TTree * t1 =new TTree("tree","tree");
 
 
@@ -254,50 +254,122 @@ int makeMatchedNtuples(){
         }
       }
 
+    //   dR_EMTF = 15.0;
+    //   idx_EMTF = -99;
+    //   float EMTFEta = -9999;
+    //   float EMTFPhi = -9999;
+    //   // GMT muon EMTF track matching
+    //   for (int j=0; j<*emtfTrackSize; j++){
+    //     if(emtfTrackBX[j] != 0) continue;
+
+    //     float GMTEta = emtfTrackGMTEta[j] * 0.010875;
+
+    //     int globPhi = (emtfTrackSector[j] - 1) * 96 + emtfTrackGMTPhi[j];
+
+    //     globPhi = (globPhi + 600) % 576;
+
+    //     float GMTPhi = globPhi * 0.010908;
+
+    //     float dR_new_EMTF = TMath::Sqrt((etaStar_gen-GMTEta)*(etaStar_gen-GMTEta)+DPhi(phiStar_gen,GMTPhi)*DPhi(phiStar_gen,GMTPhi));
+    //     // std::cout << "dR EMTF: " << dR_new_EMTF << std::endl;
+
+    //     if(dR_new_EMTF > dR_EMTF){
+    //       continue;
+    //     }
+    //     else{
+    //       idx_EMTF = j;
+    //       dR_EMTF = dR_new_EMTF;
+    //       EMTFEta = GMTEta;
+    //       EMTFPhi = GMTPhi;
+
+    //     }
+
+
+    //   }
+
+    //   if (idx_EMTF < 0){
+    //     l1_pt.push_back(-9999);
+    //     l1_ptDxy.push_back(-9999);
+    //     l1_eta.push_back(-9999);
+    //     l1_phi.push_back(-9999);
+    //     l1_qual.push_back(-9999);
+    //     l1_dxy.push_back(-9999);
+    //     l1_dxyNN.push_back(-9999);
+    //     l1_charge.push_back(int(-9999));
+    //     l1_emtfMode.push_back(-9999);
+    //   } 
+
+    //   else{
+    //     int GMT_dxy = -1;
+
+    //     if (abs(emtfTrackDxy[idx_EMTF]) < 25){
+    //       GMT_dxy = 0;
+    //     }
+    //     else if (abs(emtfTrackDxy[idx_EMTF]) < 50){
+    //       GMT_dxy = 1;
+    //     }
+    //     else if (abs(emtfTrackDxy[idx_EMTF]) < 75){
+    //       GMT_dxy = 2;
+    //     }
+    //     else {
+    //       GMT_dxy = 3;
+    //     }
+
+    //     l1_pt.push_back(emtfTrackPt[idx_EMTF]);
+    //     l1_ptDxy.push_back(emtfTrackPtDxy[idx_EMTF]);
+    //     l1_eta.push_back(EMTFEta);
+    //     l1_phi.push_back(EMTFPhi);
+    //     // l1_qual.push_back(gmtMuonQual[i]);
+    //     l1_dxy.push_back(int(GMT_dxy));
+    //     l1_dxyNN.push_back(emtfTrackDxy[idx_EMTF]);
+    //     // l1_charge.push_back(int(gmtMuonCharge[i]));
+    //     l1_emtfMode.push_back(int(emtfTrackMode[idx_EMTF]));
+    //   }
+
       gen_dR.push_back(dR);
       gen_matchedL1Mu.push_back(l1mu_idx);
     } 
 
 
     // create GEN dimuon parent
-    for (int i=0; i<genPartPt.GetSize(); i++){
+    // for (int i=0; i<genPartPt.GetSize(); i++){
 
-      if(genPartID[i] != 13 ) continue;
-      if(abs(genPartParentID[i]) != 6000113 ) continue;
+    //   if(genPartID[i] != 13 ) continue;
+    //   if(abs(genPartParentID[i]) != 6000113 ) continue;
 
-      float Lxy_i = TMath::Sqrt(genPartVx[i]*genPartVx[i] + genPartVy[i]*genPartVy[i]);
+    //   float Lxy_i = TMath::Sqrt(genPartVx[i]*genPartVx[i] + genPartVy[i]*genPartVy[i]);
 
 
-      for (int j=0; j<genPartPt.GetSize(); j++){
-        if (i == j) continue;
-        if(genPartID[j] != -13 ) continue;
-        if(abs(genPartParentID[j]) != 6000113 ) continue;
+    //   for (int j=0; j<genPartPt.GetSize(); j++){
+    //     if (i == j) continue;
+    //     if(genPartID[j] != -13 ) continue;
+    //     if(abs(genPartParentID[j]) != 6000113 ) continue;
         
-        float Lxy_j = TMath::Sqrt(genPartVx[j]*genPartVx[j] + genPartVy[j]*genPartVy[j]);
+    //     float Lxy_j = TMath::Sqrt(genPartVx[j]*genPartVx[j] + genPartVy[j]*genPartVy[j]);
 
-        if (Lxy_i != Lxy_j) continue;
-        if (genPartVz[i] != genPartVz[j]) continue;
+    //     if (Lxy_i != Lxy_j) continue;
+    //     if (genPartVz[i] != genPartVz[j]) continue;
 
-        TLorentzVector mu1, mu2, parent;
+    //     TLorentzVector mu1, mu2, parent;
 
-        mu1.SetPtEtaPhiM(genPartPt[i], genPartEta[i], genPartPhi[i], 0.1057);
-        mu2.SetPtEtaPhiM(genPartPt[j], genPartEta[j], genPartPhi[j], 0.1057);
+    //     mu1.SetPtEtaPhiM(genPartPt[i], genPartEta[i], genPartPhi[i], 0.1057);
+    //     mu2.SetPtEtaPhiM(genPartPt[j], genPartEta[j], genPartPhi[j], 0.1057);
 
-        parent = mu1 + mu2;
+    //     parent = mu1 + mu2;
 
-        gendimu_pt.push_back(parent.Pt());
-        gendimu_eta.push_back(parent.Eta());
-        gendimu_phi.push_back(parent.Phi());
-        gendimu_Lxy.push_back(Lxy_i);
-        gendimu_vz.push_back(genPartVz[i]);
-        gendimu_daughter1.push_back(i);
-        gendimu_daughter2.push_back(j);
+    //     gendimu_pt.push_back(parent.Pt());
+    //     gendimu_eta.push_back(parent.Eta());
+    //     gendimu_phi.push_back(parent.Phi());
+    //     gendimu_Lxy.push_back(Lxy_i);
+    //     gendimu_vz.push_back(genPartVz[i]);
+    //     gendimu_daughter1.push_back(i);
+    //     gendimu_daughter2.push_back(j);
         
 
-      }
+    //   }
 
 
-    }
+    // }
 
 
 
