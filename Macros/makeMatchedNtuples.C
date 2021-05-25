@@ -35,12 +35,21 @@ float DPhi(double phi1,double phi2){
 
 int makeMatchedNtuples(){
 
-  TString file = "/afs/cern.ch/user/e/eyigitba/L1T_dev/CMSSW_11_3_0_pre5_ptLUT/src/EMTFNtuple.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/CRAB_PrivateMC/DisplacedMuGun_flatPt2to1000_posEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv6_2M/210421_153714/DisplacedMuGun_flatPt2to1000_posEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv6_2M.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/CRAB_PrivateMC/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv6_2M/210421_153922/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv6_2M.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/CRAB_PrivateMC/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_10M/210413_105349/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_10M.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/CRAB_PrivateMC/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv7_1M/210503_111501/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv7_1M.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/CRAB_PrivateMC/DisplacedMuGun_flatPt2to1000_posEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv7_1M/210503_111437/DisplacedMuGun_flatPt2to1000_posEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv7_1M.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/HTo2LongLivedTo4mu_MH-125_MFF-50_CTau-3000mm_TuneCP5_14TeV_pythia8/HTo2LongLivedTo4mu_MH-125_MFF-50_CTau-3000mm_NNv6/210427_070220/0000/EMTFNtuple_1.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/HTo2LongLivedTo4mu_MH-125_MFF-25_CTau-1500mm_TuneCP5_14TeV_pythia8/HTo2LongLivedTo4mu_MH-125_MFF-25_CTau-1500mm_NNv6/210503_172337/HTo2LongLivedTo4mu_MH-125_MFF-25_CTau-1500mm_NNv6.root";
+  TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/CRAB_PrivateMC/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv8_1M/210518_163811/DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv8_1M.root";
+  // TString file = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/CRAB_PrivateMC/DisplacedMuGun_flatPt2to1000_posEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv8_1M/210518_161340/DisplacedMuGun_flatPt2to1000_posEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv8_1M.root";
+
 
   // load trees
   TString tree = "EMTFNtuple/tree";
 
-  TFile *fout =new TFile("/afs/cern.ch/user/e/eyigitba/L1T_dev/CMSSW_11_3_0_pre5_ptLUT/src/MatchedNtuple.root","RECREATE");
+  TFile *fout =new TFile("/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_DisplacedMuGun_flatPt2to1000_negEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv8_1M.root","RECREATE");
   TTree * t1 =new TTree("tree","tree");
 
 

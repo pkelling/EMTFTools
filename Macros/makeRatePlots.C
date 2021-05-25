@@ -51,7 +51,8 @@ int makeRatePlots(){
 
   // Zero Bias
   // TString ntuple = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/ZeroBias/EMTFNtuple_ZeroBias_Run2018D_cmssw_11_0_2_fwImplementation_NNv4/201123_163739/EMTFNtuple_ZeroBias_Run2018D_cmssw_11_0_2_fwImplementation_NNv4.root";
-  TString ntuple = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/ZeroBias/EMTFNtuple_ZeroBias_Run2018D_cmssw_11_0_2_fwImplementation_NNv5/201123_162954/EMTFNtuple_ZeroBias_Run2018D_cmssw_11_0_2_fwImplementation_NNv5.root";
+  // TString ntuple = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/ZeroBias/EMTFNtuple_ZeroBias_Run2018D_cmssw_11_0_2_fwImplementation_NNv5/201123_162954/EMTFNtuple_ZeroBias_Run2018D_cmssw_11_0_2_fwImplementation_NNv5.root";
+  TString ntuple = "/eos/cms/store/user/eyigitba/emtf/L1Ntuples/Run3/crabOut/Nu_E10-pythia8-gun/NuGun_11_3_0_pre5_NNv6_5M/210421_154733/NuGun_11_3_0_pre5_NNv6_5M.root";
 
   TChain * cc=new TChain("EMTFNtuple/tree");
   cc->Add(ntuple);
@@ -77,12 +78,12 @@ int makeRatePlots(){
   TTreeReaderValue<int32_t> gmtMuonSize(reader,"gmtMuon_size");
   TTreeReaderArray<float  > gmtMuonPt(reader,"gmtMuon_pt");
   TTreeReaderArray<float  > gmtMuonPtDxy(reader,"gmtMuon_pt_dxy");
-  TTreeReaderArray<float  > gmtMuonPtDxyNN(reader,"gmtMuon_pt_dxyNN");
-  TTreeReaderArray<short  > gmtMuonDxy(reader,"gmtMuon_dxy");
-  TTreeReaderArray<float  > gmtMuonDxyNN(reader,"gmtMuon_dxyNN");
+  // TTreeReaderArray<float  > gmtMuonPtDxyNN(reader,"gmtMuon_pt_dxyNN");
+  // TTreeReaderArray<short  > gmtMuonDxy(reader,"gmtMuon_dxy");
+  // TTreeReaderArray<float  > gmtMuonDxyNN(reader,"gmtMuon_dxyNN");
   TTreeReaderArray<float  > gmtMuonPhi(reader,"gmtMuon_phi");
   TTreeReaderArray<float  > gmtMuonEta(reader,"gmtMuon_eta");
-  TTreeReaderArray<short  > gmtMuonCharge(reader,"gmtMuon_q");
+  // TTreeReaderArray<short  > gmtMuonCharge(reader,"gmtMuon_q");
   TTreeReaderArray<short  > gmtMuonQual(reader,"gmtMuon_qual");
 
   gStyle->SetOptStat(0);
@@ -103,37 +104,37 @@ int makeRatePlots(){
 
   // initialize cuts
 
-  TH1F *h_pT_noDxy = new TH1F("h_pT_noDxy", "NNv5", 300, 0.5, 300.5);
+  TH1F *h_pT_noDxy = new TH1F("h_pT_noDxy", "NNv6", 300, 0.5, 300.5);
   TH1F *h_pT_25Dxy = new TH1F("h_pT_25Dxy", "", 300, 0.5, 300.5);
   TH1F *h_pT_50Dxy = new TH1F("h_pT_50Dxy", "", 300, 0.5, 300.5);
   TH1F *h_pT_75Dxy = new TH1F("h_pT_75Dxy", "", 300, 0.5, 300.5);
 
-  TH1F *h_pT_noDxyEta1 = new TH1F("h_pT_noDxyEta1", "NNv5", 300, 0.5, 300.5);
+  TH1F *h_pT_noDxyEta1 = new TH1F("h_pT_noDxyEta1", "NNv6", 300, 0.5, 300.5);
   TH1F *h_pT_25DxyEta1 = new TH1F("h_pT_25DxyEta1", "", 300, 0.5, 300.5);
   TH1F *h_pT_50DxyEta1 = new TH1F("h_pT_50DxyEta1", "", 300, 0.5, 300.5);
   TH1F *h_pT_75DxyEta1 = new TH1F("h_pT_75DxyEta1", "", 300, 0.5, 300.5);
 
-  TH1F *h_pT_noDxyEta2 = new TH1F("h_pT_noDxyEta2", "NNv5", 300, 0.5, 300.5);
+  TH1F *h_pT_noDxyEta2 = new TH1F("h_pT_noDxyEta2", "NNv6", 300, 0.5, 300.5);
   TH1F *h_pT_25DxyEta2 = new TH1F("h_pT_25DxyEta2", "", 300, 0.5, 300.5);
   TH1F *h_pT_50DxyEta2 = new TH1F("h_pT_50DxyEta2", "", 300, 0.5, 300.5);
   TH1F *h_pT_75DxyEta2 = new TH1F("h_pT_75DxyEta2", "", 300, 0.5, 300.5);
 
-  TH1F *h_pT_noDxyEta3 = new TH1F("h_pT_noDxyEta3", "NNv5", 300, 0.5, 300.5);
+  TH1F *h_pT_noDxyEta3 = new TH1F("h_pT_noDxyEta3", "NNv6", 300, 0.5, 300.5);
   TH1F *h_pT_25DxyEta3 = new TH1F("h_pT_25DxyEta3", "", 300, 0.5, 300.5);
   TH1F *h_pT_50DxyEta3 = new TH1F("h_pT_50DxyEta3", "", 300, 0.5, 300.5);
   TH1F *h_pT_75DxyEta3 = new TH1F("h_pT_75DxyEta3", "", 300, 0.5, 300.5);
 
-  TH1F *h_pT_noDxyDimu = new TH1F("h_pT_noDxyDimu", "NNv5", 30, 0.5, 30.5);
+  TH1F *h_pT_noDxyDimu = new TH1F("h_pT_noDxyDimu", "NNv6", 30, 0.5, 30.5);
   TH1F *h_pT_25DxyDimu = new TH1F("h_pT_25DxyDimu", "", 30, 0.5, 30.5);
   TH1F *h_pT_50DxyDimu = new TH1F("h_pT_50DxyDimu", "", 30, 0.5, 30.5);
   TH1F *h_pT_75DxyDimu = new TH1F("h_pT_75DxyDimu", "", 30, 0.5, 30.5);
 
-  TH1F *h_pT_noDxyDimu10 = new TH1F("h_pT_noDxyDimu10", "NNv5", 30, 0.5, 30.5);
+  TH1F *h_pT_noDxyDimu10 = new TH1F("h_pT_noDxyDimu10", "NNv6", 30, 0.5, 30.5);
   TH1F *h_pT_25DxyDimu10 = new TH1F("h_pT_25DxyDimu10", "", 30, 0.5, 30.5);
   TH1F *h_pT_50DxyDimu10 = new TH1F("h_pT_50DxyDimu10", "", 30, 0.5, 30.5);
   TH1F *h_pT_75DxyDimu10 = new TH1F("h_pT_75DxyDimu10", "", 30, 0.5, 30.5);
 
-  TH1F *h_pT_noDxyDimu20 = new TH1F("h_pT_noDxyDimu20", "NNv5", 30, 0.5, 30.5);
+  TH1F *h_pT_noDxyDimu20 = new TH1F("h_pT_noDxyDimu20", "NNv6", 30, 0.5, 30.5);
   TH1F *h_pT_25DxyDimu20 = new TH1F("h_pT_25DxyDimu20", "", 30, 0.5, 30.5);
   TH1F *h_pT_50DxyDimu20 = new TH1F("h_pT_50DxyDimu20", "", 30, 0.5, 30.5);
   TH1F *h_pT_75DxyDimu20 = new TH1F("h_pT_75DxyDimu20", "", 30, 0.5, 30.5);
@@ -156,11 +157,12 @@ int makeRatePlots(){
     // Single muon rates 
     while(reader.Next()){
       eventCount++;
-      if (eventCount % 10000 == 0) std::cout << eventCount << " events read!" << std::endl;
+      if (eventCount % 1 == 0) std::cout << eventCount << " events read!" << std::endl;
       for (int ptThreshold = 0; ptThreshold < 300; ptThreshold++){
         bool passedEvent = false;
 
         for (int i=0; i<*gmtMuonSize; i++){
+          bool passedMuon = false;
           if(abs(gmtMuonEta[i]) < 1.24 or abs(gmtMuonEta[i]) > 2.5) continue;
 
           float dR_EMTF = 99.0;
@@ -193,9 +195,10 @@ int makeRatePlots(){
           }
           if (idx_EMTF < 0) continue;
           if (emtfTrackMode[idx_EMTF] < 11 || emtfTrackMode[idx_EMTF] == 12) continue;
-          if (emtfTrackPtDxy[idx_EMTF] > ptThreshold){
+          if ((emtfTrackPtDxy[idx_EMTF] > ptThreshold) && (emtfTrackPt[idx_EMTF] < ptThreshold)){
+          // if (emtfTrackPtDxy[idx_EMTF] > ptThreshold){
           // if (emtfTrackPt[idx_EMTF] > ptThreshold){
-            passedEvent = true;
+            passedMuon = true;
             h_pT_noDxy->Fill(ptThreshold,rate);
             
             if( abs(emtfTrackDxy[idx_EMTF]) > 75) h_pT_75Dxy->Fill(ptThreshold,rate);
@@ -223,8 +226,11 @@ int makeRatePlots(){
               else if( abs(emtfTrackDxy[idx_EMTF]) > 50) h_pT_50DxyEta1->Fill(ptThreshold,rate);
               else if( abs(emtfTrackDxy[idx_EMTF]) > 25) h_pT_25DxyEta1->Fill(ptThreshold,rate);
             }
+          } 
+          if (passedMuon) break;
+          if (emtfTrackPtDxy[idx_EMTF] > ptThreshold){
+            passedEvent = true;
           }
-          if (passedEvent) break;
             
         } // GMT loop
         if (!passedEvent) break;
@@ -517,7 +523,7 @@ int makeRatePlots(){
     leg11->AddEntry(h_pT_75Dxy,leg4);
     leg11->Draw("sames");
 
-    c1->SaveAs("./output_files/comparisons/rates/NNv4_NNv5/ZeroBias_q11_rate_NNv5.pdf");
+    c1->SaveAs("./output_files/comparisons/rates/NNv5_NNv6/NuGun_q11_AdditionalRate_NNv6.pdf");
 
     h_pT_noDxyEta1->Draw("hist");
     h_pT_25DxyEta1->Draw("hist same");
@@ -531,7 +537,7 @@ int makeRatePlots(){
     leg22->AddEntry(h_pT_75DxyEta1,leg4);
     leg22->Draw("sames");
 
-    c1->SaveAs("./output_files/comparisons/rates/NNv4_NNv5/ZeroBias_q11_rate_eta1_NNv5.pdf");
+    c1->SaveAs("./output_files/comparisons/rates/NNv5_NNv6/NuGun_q11_AdditionalRate_eta1_NNv6.pdf");
 
     h_pT_noDxyEta2->Draw("hist");
     h_pT_25DxyEta2->Draw("hist same");
@@ -545,7 +551,7 @@ int makeRatePlots(){
     leg33->AddEntry(h_pT_75DxyEta2,leg4);
     leg33->Draw("sames");
 
-    c1->SaveAs("./output_files/comparisons/rates/NNv4_NNv5/ZeroBias_q11_rate_eta2_NNv5.pdf");
+    c1->SaveAs("./output_files/comparisons/rates/NNv5_NNv6/NuGun_q11_AdditionalRate_eta2_NNv6.pdf");
 
     h_pT_noDxyEta3->Draw("hist");
     h_pT_25DxyEta3->Draw("hist same");
@@ -559,7 +565,7 @@ int makeRatePlots(){
     leg44->AddEntry(h_pT_75DxyEta3,leg4);
     leg44->Draw("sames");
 
-    c1->SaveAs("./output_files/comparisons/rates/NNv4_NNv5/ZeroBias_q11_rate_eta3_NNv5.pdf");
+    c1->SaveAs("./output_files/comparisons/rates/NNv5_NNv6/NuGun_q11_AdditionalRate_eta3_NNv6.pdf");
   }
 
   if (doDimuon){
@@ -575,7 +581,7 @@ int makeRatePlots(){
     leg11->AddEntry(h_pT_75DxyDimu,leg4);
     leg11->Draw("sames");
 
-    c1->SaveAs("./output_files/comparisons/rates/dimuon/ZeroBias_rate_NNv5.pdf");
+    c1->SaveAs("./output_files/comparisons/rates/dimuon/NuGun_AdditionalRate_NNv6.pdf");
 
     h_pT_noDxyDimu10->Draw("hist");
     h_pT_25DxyDimu10->Draw("hist same");
@@ -589,7 +595,7 @@ int makeRatePlots(){
     leg22->AddEntry(h_pT_75DxyDimu10,leg4);
     leg22->Draw("sames");
 
-    c1->SaveAs("./output_files/comparisons/rates/dimuon/ZeroBias_asym10_rate_NNv5.pdf");
+    c1->SaveAs("./output_files/comparisons/rates/dimuon/NuGun_asym10_AdditionalRate_NNv6.pdf");
 
     h_pT_noDxyDimu20->Draw("hist");
     h_pT_25DxyDimu20->Draw("hist same");
@@ -603,7 +609,7 @@ int makeRatePlots(){
     leg33->AddEntry(h_pT_75DxyDimu20,leg4);
     leg33->Draw("sames");
 
-    c1->SaveAs("./output_files/comparisons/rates/dimuon/ZeroBias_asym20_rate_NNv5.pdf");
+    c1->SaveAs("./output_files/comparisons/rates/dimuon/NuGun_asym20_AdditionalRate_NNv6.pdf");
   }
 
 
