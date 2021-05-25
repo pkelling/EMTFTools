@@ -2,18 +2,18 @@ import FWCore.ParameterSet.Config as cms
 
 EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
 
-    CSCInputTag      = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'), 
-    RPCInputTag      = cms.InputTag('simMuonRPCDigis'), 
-    CPPFInputTag     = cms.InputTag('simCPPFDigis'), 
-    GEMInputTag      = cms.InputTag('simMuonGEMPadDigiClusters'), 
+    CSCInputTag      = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
+    RPCInputTag      = cms.InputTag('simMuonRPCDigis'),
+    CPPFInputTag     = cms.InputTag('simCPPFDigis'),
+    GEMInputTag      = cms.InputTag('simMuonGEMPadDigiClusters'),
 
-    IRPCInputTag     = cms.InputTag('simMuonRPCDigis'), 
-    ME0InputTag      = cms.InputTag('me0TriggerConvertedPseudoDigis'), 
-    DTInputTag       = cms.InputTag('simDtTriggerPrimitiveDigis'), 
+    IRPCInputTag     = cms.InputTag('simMuonRPCDigis'),
+    ME0InputTag      = cms.InputTag('me0TriggerConvertedPseudoDigis'),
+    DTInputTag       = cms.InputTag('simDtTriggerPrimitiveDigis'),
 
     EMTFHitTag       = cms.InputTag('simEmtfDigis'),
     EMTFUnpHitTag    = cms.InputTag('emtfDigis', 'EMTF'),
-    
+
     EMTFTrackTag     = cms.InputTag('simEmtfDigis'),
     EMTFUnpTrackTag  = cms.InputTag('gmtStage2Digis', 'EMTF'),
 
@@ -42,18 +42,18 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
 
     useEMTFHits      = cms.bool(True),
     useEMTFUnpHits   = cms.bool(False),
-    
+
     useEMTFTracks    = cms.bool(True),
     useEMTFUnpTracks = cms.bool(False),
-    
+
     useGMTMuons      = cms.bool(True),
     useGMTUnpMuons   = cms.bool(False),
-    
+
     useGENParts      = cms.bool(True),
     useEventInfo     = cms.bool(False),
-    
+
     useCSCSegments   = cms.bool(True),
+    matchCSCSegments   = cms.bool(True),
 
     isReco           = cms.bool(True),
-
   )
