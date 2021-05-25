@@ -40,8 +40,9 @@ int DefaultColor(int j,int i){
 int makeComparisonPlotsOldVsNew(){
 
   //read data
-  TString ntuple_old = "/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_HTo2LLTo4Mu_combined_cmssw_11_0_2_fwImplementation_NNv4.root";
-  TString ntuple_new = "/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_HTo2LLTo4Mu_combined_cmssw_11_0_2_fwImplementation_NNv5.root";
+  // TString ntuple_old = "/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_DisplacedMuGun_flatPt2to1000_allEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv8_1M.root";
+  TString ntuple_old = "/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_DisplacedMuGun_flatPt2to1000_allEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv6_20M.root";
+  TString ntuple_new = "/eos/cms/store/user/eyigitba/emtf/matchedNtuples/matchedNtuple_DisplacedMuGun_flatPt2to1000_allEndcap_flatXYZEtaPhi_11_3_0_pre5_NNv8_1M.root";
   TChain * cc_old=new TChain("tree");
   TChain * cc_new=new TChain("tree");
   cc_old->Add(ntuple_old);
@@ -222,8 +223,8 @@ int makeComparisonPlotsOldVsNew(){
   h_IntDxyDiff->SetLineColor(1);
 
  
-  TString leg = "NNv4";
-  TString leg2 = "NNv5";
+  TString leg = "NNv6";
+  TString leg2 = "NNv8";
 
   //create canvas and save histos
   TCanvas * c1=new TCanvas("c1","c1",1200,1200);
@@ -240,7 +241,7 @@ int makeComparisonPlotsOldVsNew(){
   leg11->AddEntry(h_ptNew,leg2);
   leg11->Draw("sames");
 
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/pT_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/pT_NNv5VsNNv6.pdf");
 
   h_InvPtOld->Draw("");
   h_InvPtNew->Draw("sames");
@@ -250,7 +251,7 @@ int makeComparisonPlotsOldVsNew(){
   leg22->AddEntry(h_InvPtNew,leg2);
   leg22->Draw("sames");
 
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/invPT_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/invPT_NNv5VsNNv6.pdf");
 
   h_dxyOld->Draw("");
   h_dxyNew->Draw("sames");
@@ -260,7 +261,7 @@ int makeComparisonPlotsOldVsNew(){
   leg33->AddEntry(h_dxyNew,leg2);
   leg33->Draw("sames");
 
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/dxy_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/dxy_NNv5VsNNv6.pdf");
 
   h_IntDxyOld->Draw("");
   h_IntDxyNew->Draw("sames");
@@ -270,19 +271,19 @@ int makeComparisonPlotsOldVsNew(){
   leg44->AddEntry(h_IntDxyNew,leg2);
   leg44->Draw("sames");
 
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/intDxy_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/intDxy_NNv5VsNNv6.pdf");
 
   h_ptDiff->Draw("");
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/dPT_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/dPT_NNv5VsNNv6.pdf");
 
   h_InvPtDiff->Draw("");
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/dInvPT_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/dInvPT_NNv5VsNNv6.pdf");
 
   h_dxyDiff->Draw("");
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/dDxy_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/dDxy_NNv5VsNNv6.pdf");
 
   h_IntDxyDiff->Draw("");
-  c1->SaveAs("./output_files/comparisons/NNv4_NNv5/dIntDxy_NNv4VsNNv5.pdf");
+  c1->SaveAs("./output_files/comparisons/NNv6_NNv8/dIntDxy_NNv5VsNNv6.pdf");
 
 
 
