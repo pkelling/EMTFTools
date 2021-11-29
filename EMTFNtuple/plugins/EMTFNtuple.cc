@@ -15,6 +15,8 @@ Description: Creates flat ntuples to be used for EMTF studies.
 //
 
 #include "EMTFTools/EMTFNtuple/plugins/EMTFNtuple.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 
 EMTFNtuple::EMTFNtuple(const edm::ParameterSet &iConfig)
     : CSCInputTag_(iConfig.getParameter<edm::InputTag>("CSCInputTag")),
@@ -68,7 +70,9 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet &iConfig)
       useCSCSegments_(iConfig.getParameter<bool>("useCSCSegments")),
       matchCSCSegments_(iConfig.getParameter<bool>("matchCSCSegments")),
 
-      isReco_(iConfig.getParameter<bool>("isReco"))
+      isReco_(iConfig.getParameter<bool>("isReco")),
+
+      geometryTranslator_(consumesCollector())
 
 {
     usesResource("TFileService"); // shared resources

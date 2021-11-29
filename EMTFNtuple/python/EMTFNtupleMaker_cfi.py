@@ -12,10 +12,10 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
     DTInputTag       = cms.InputTag('simDtTriggerPrimitiveDigis'),
 
     EMTFHitTag       = cms.InputTag('simEmtfDigis'),
-    EMTFUnpHitTag    = cms.InputTag('emtfDigis', 'EMTF'),
+    EMTFUnpHitTag    = cms.InputTag('emtfStage2Digis'),
 
     EMTFTrackTag     = cms.InputTag('simEmtfDigis'),
-    EMTFUnpTrackTag  = cms.InputTag('gmtStage2Digis', 'EMTF'),
+    EMTFUnpTrackTag  = cms.InputTag('emtfStage2Digis'),
 
     GMTMuonTag       = cms.InputTag('simGmtStage2Digis'),
     GMTUnpMuonTag    = cms.InputTag('gmtStage2Digis', 'Muon'),
@@ -40,20 +40,20 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
     useDT            = cms.bool(False),
 
 
-    useEMTFHits      = cms.bool(True),
-    useEMTFUnpHits   = cms.bool(False),
+    useEMTFHits      = cms.bool(False),
+    useEMTFUnpHits   = cms.bool(True),
 
-    useEMTFTracks    = cms.bool(True),
-    useEMTFUnpTracks = cms.bool(False),
+    useEMTFTracks    = cms.bool(False),
+    useEMTFUnpTracks = cms.bool(True),
 
-    useGMTMuons      = cms.bool(True),
+    useGMTMuons      = cms.bool(False),
     useGMTUnpMuons   = cms.bool(False),
 
-    useGENParts      = cms.bool(True),
+    useGENParts      = cms.bool(False),
     useEventInfo     = cms.bool(False),
 
-    useCSCSegments   = cms.bool(True),
-    matchCSCSegments   = cms.bool(True),
+    useCSCSegments   = cms.bool(False),
+    matchCSCSegments   = cms.bool(False),
 
-    isReco           = cms.bool(True),
+    isReco           = cms.bool(False),
   )
