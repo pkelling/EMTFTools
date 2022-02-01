@@ -174,6 +174,9 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
     edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentToken_;
 
+    edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+    edm::ESHandle<CSCGeometry> cscGeom_;
+
     GeometryTranslator geometryTranslator_;
 
     EMTFSubsystemCollector collector_;

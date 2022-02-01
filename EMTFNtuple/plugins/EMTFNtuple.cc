@@ -100,6 +100,8 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet &iConfig)
     GENPartToken_ = consumes<reco::GenParticleCollection>(GENPartTag_);
 
     CSCSegmentToken_ = consumes<CSCSegmentCollection>(CSCSegmentTag_);
+
+    cscGeomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 EMTFNtuple::~EMTFNtuple() {
@@ -568,11 +570,10 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
         }
     }
 
-    edm::ESHandle<CSCGeometry> cscGeom;
-    iSetup.get<MuonGeometryRecord>().get(cscGeom);
 
     // CSC Segments
     if (useCSCSegments_) {
+        cscGeom_ = iSetup.getHandle(cscGeomToken_);
         for (const auto &cscSeg : *CSCSegments_) {
             // Set CSCDetId to get position of segment in detector
             CSCDetId id = (CSCDetId)(cscSeg).cscDetId();
@@ -581,7 +582,7 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
             // See
             // https://github.com/aminnj/CSCValidationRunning/blob/me42/RecoLocalMuon/CSCValidation/src/CSCValidation.cc#L1153
             LocalPoint locPos = (cscSeg).localPosition();
-            const CSCChamber *cscChamb = cscGeom->chamber(id);
+            const CSCChamber *cscChamb = cscGeom_->chamber(id);
             GlobalPoint globPos = cscChamb->toGlobal(locPos);
 
             // globPos.phi() has bizzare properties when you multiply it
