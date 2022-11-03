@@ -75,6 +75,11 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 
 #include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
@@ -220,6 +225,8 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     edm::EDGetTokenT<reco::VertexCollection> VerticesToken_;
     edm::Handle<edm::TriggerResults> IsoTriggerToken_;
     edm::Handle<std::vector<std::string>> IsoTriggerNamesToken_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theBFieldToken_;
+
 
     double triggerMaxDeltaR_;
     bool triggerMatching_;
@@ -532,6 +539,10 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::unique_ptr<std::vector<float>> genPart_vx;
     std::unique_ptr<std::vector<float>> genPart_vy;
     std::unique_ptr<std::vector<float>> genPart_vz;
+    std::unique_ptr<std::vector<float>> genPart_etaSt1;
+    std::unique_ptr<std::vector<float>> genPart_phiSt1;
+    std::unique_ptr<std::vector<float>> genPart_etaSt2;
+    std::unique_ptr<std::vector<float>> genPart_phiSt2;
 
     // Event info
     std::unique_ptr<std::vector<uint64_t>> eventInfo_event;
