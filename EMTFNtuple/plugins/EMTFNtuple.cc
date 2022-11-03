@@ -75,6 +75,7 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet &iConfig)
       //trig matching
       isoTriggerNames_(iConfig.getParameter<std::vector<std::string>>("isoTriggerNames")),
       triggerNames_(iConfig.getParameter<std::vector<std::string>>("triggerNames")),
+      theBFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>(edm::ESInputTag("", ""))),
 
       muPropagatorSetup1st_(iConfig.getParameter<edm::ParameterSet>("muProp1st"), consumesCollector()),
       muPropagatorSetup2nd_(iConfig.getParameter<edm::ParameterSet>("muProp2nd"), consumesCollector()),
@@ -115,6 +116,7 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet &iConfig)
     TriggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
     TriggerSummaryLabelsToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", "HLT"));
     VerticesToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+
 
     triggerMatching_ = true;
     triggerMaxDeltaR_ = 0.1;
@@ -584,6 +586,33 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
             genPart_vx->push_back(part.vx());
             genPart_vy->push_back(part.vy());
             genPart_vz->push_back(part.vz());
+
+            const MagneticField &theBField = iSetup.getData(theBFieldToken_);
+            const MagneticField *theMagneticField = &theBField;
+
+
+            GlobalPoint gp(part.vx(), part.vy(), part.vz());
+            GlobalVector gv(part.px(), part.py(), part.pz());
+            FreeTrajectoryState fts(gp, gv, part.charge(), theMagneticField);
+
+            // extrapolation of track coordinates
+            TrajectoryStateOnSurface stateAtMuSt1 = muPropagator1st_.extrapolate(fts);
+            if (stateAtMuSt1.isValid()) {
+                genPart_etaSt1->push_back(stateAtMuSt1.globalPosition().eta());
+                genPart_phiSt1->push_back(stateAtMuSt1.globalPosition().phi());
+            } else {
+                genPart_etaSt1->push_back(-9999);
+                genPart_phiSt1->push_back(-9999);
+            }
+
+            TrajectoryStateOnSurface stateAtMuSt2 = muPropagator2nd_.extrapolate(fts);
+            if (stateAtMuSt2.isValid()) {
+                genPart_etaSt2->push_back(stateAtMuSt2.globalPosition().eta());
+                genPart_phiSt2->push_back(stateAtMuSt2.globalPosition().phi());
+            } else {
+                genPart_etaSt2->push_back(-9999);
+                genPart_phiSt2->push_back(-9999);
+            }
         }
     }
 
@@ -1831,6 +1860,10 @@ void EMTFNtuple::makeTree() {
     genPart_vx = std::make_unique<std::vector<float>>();
     genPart_vy = std::make_unique<std::vector<float>>();
     genPart_vz = std::make_unique<std::vector<float>>();
+    genPart_etaSt1 = std::make_unique<std::vector<float>>();
+    genPart_phiSt1 = std::make_unique<std::vector<float>>();
+    genPart_etaSt2 = std::make_unique<std::vector<float>>();
+    genPart_phiSt2 = std::make_unique<std::vector<float>>();
 
     // Event info
     eventInfo_event = std::make_unique<std::vector<uint64_t>>();
@@ -2187,6 +2220,10 @@ void EMTFNtuple::makeTree() {
         tree->Branch("genPart_vx", &(*genPart_vx));
         tree->Branch("genPart_vy", &(*genPart_vy));
         tree->Branch("genPart_vz", &(*genPart_vz));
+        tree->Branch("genPart_etaSt1", &(*genPart_etaSt1));
+        tree->Branch("genPart_phiSt1", &(*genPart_phiSt1));
+        tree->Branch("genPart_etaSt2", &(*genPart_etaSt2));
+        tree->Branch("genPart_phiSt2", &(*genPart_phiSt2));
     }
 
     // Event info
@@ -2525,6 +2562,10 @@ void EMTFNtuple::fillTree() {
     genPart_vx->clear();
     genPart_vy->clear();
     genPart_vz->clear();
+    genPart_etaSt1->clear();
+    genPart_phiSt1->clear();
+    genPart_etaSt2->clear();
+    genPart_phiSt2->clear();
 
     // Event info
     eventInfo_event->clear();
