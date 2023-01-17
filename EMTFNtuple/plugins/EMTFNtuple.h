@@ -85,6 +85,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemCollector.h"
 #include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/DebugTools.h"
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 // #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -116,6 +117,7 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
                     const reco::Muon &mu);
     void fillTree();
     void makeTree();
+    void printDebugOutput();
 
     template <typename T> edm::Handle<T> make_handle(T &t) {
         return edm::Handle<T>();
@@ -187,6 +189,8 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     bool matchCSCSegments_;
 
     bool isReco_;
+
+    bool debug_;
     // trig matching
     std::vector<std::string> isoTriggerNames_;
     std::vector<std::string> triggerNames_;

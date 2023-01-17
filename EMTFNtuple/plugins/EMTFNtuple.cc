@@ -72,6 +72,7 @@ EMTFNtuple::EMTFNtuple(const edm::ParameterSet &iConfig)
       matchCSCSegments_(iConfig.getParameter<bool>("matchCSCSegments")),
 
       isReco_(iConfig.getParameter<bool>("isReco")),
+      debug_(iConfig.getParameter<bool>("debug")),
       //trig matching
       isoTriggerNames_(iConfig.getParameter<std::vector<std::string>>("isoTriggerNames")),
       triggerNames_(iConfig.getParameter<std::vector<std::string>>("triggerNames")),
@@ -213,6 +214,9 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
     // ___________________________________________________________________________
     // Get Handles
     getHandles(iEvent, iSetup);
+    if (debug_) {  // debug
+        printDebugOutput();
+    }
     muPropagator1st_ = muPropagatorSetup1st_.init(iSetup);
     muPropagator2nd_ = muPropagatorSetup2nd_.init(iSetup);
     if (verbose_ > 0)
@@ -334,7 +338,8 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
         emtfUnpHit_endcap->push_back(hit.Endcap());
         emtfUnpHit_station->push_back(hit.Station());
         emtfUnpHit_ring->push_back(hit.Ring());
-        emtfUnpHit_sector->push_back(hit.PC_sector());
+        // emtfUnpHit_sector->push_back(hit.PC_sector());
+        emtfUnpHit_sector->push_back(hit.Sector());
         emtfUnpHit_subsector->push_back(hit.Subsector());
         emtfUnpHit_chamber->push_back(hit.Chamber());
         emtfUnpHit_cscid->push_back(hit.CSC_ID());
@@ -2636,6 +2641,84 @@ void EMTFNtuple::fillTree() {
     recoMuon_phiSt1->clear();
     recoMuon_etaSt2->clear();
     recoMuon_phiSt2->clear();
+}
+
+void EMTFNtuple::printDebugOutput() {
+
+    if(useEMTFUnpHits_ && useEMTFUnpTracks_){
+        std::cout << "******* Printing Out EMTF Unpacked Hits and Tracks *******" << std::endl;
+        auto out_hits = EMTFUnpHits_;
+
+        // Calculate neighbor hits
+        for (int endcap_ = -1; endcap_ < 2; endcap_ += 2){
+            for (int sector_ = 1; sector_ <= 6; sector_++){
+                for (const auto &hit : EMTFUnpHits_) {
+                    bool isNeighbor = false;
+                    int tp_endcap = hit.Endcap();
+                    int tp_sector = hit.PC_sector();
+                    int tp_station = (hit.PC_station() == 0 && hit.Subsector() == 1) ? 1 : hit.PC_station();
+                    int tp_ring = hit.Ring();
+                    int tp_subsector = hit.Subsector();
+                    int tp_csc_ID = hit.PC_chamber() + 1;
+                    auto get_neighbor = [](int sector) { return (sector == 1) ? 6 : sector - 1; };
+                    auto hit_neighbor = hit;
+
+                    if (hit.Subsystem() == L1TMuon::kCSC or hit.Subsystem() == L1TMuon::kGEM){
+                        if ((endcap_ == tp_endcap) && (get_neighbor(sector_) == tp_sector)) {
+                            if (tp_station == 1) {
+                                if ((tp_subsector == 2) && (tp_csc_ID == 3 || tp_csc_ID == 6 || tp_csc_ID == 9))
+                                isNeighbor = true;
+
+                            } else {
+                                if (tp_csc_ID == 3 || tp_csc_ID == 9)
+                                isNeighbor = true;
+                            }
+                        }
+                        if (isNeighbor){
+                            hit_neighbor.set_sector(sector_);
+                            hit_neighbor.set_pc_sector(sector_);
+                            hit_neighbor.set_station(5);
+                            hit_neighbor.set_pc_station(5);
+                            hit_neighbor.set_neighbor(1);
+                            hit_neighbor.set_sector_idx((endcap_ == 1) ? sector_ - 1 : sector_ + 5);
+                        }
+                    } else if (hit.Subsystem() == L1TMuon::kRPC){
+                        auto get_neighbor_subsector = [](int tp_station, int tp_ring) {
+                            const bool is_irpc = (tp_station == 3 || tp_station == 4) && (tp_ring == 1);
+                            if (is_irpc) {
+                                // 20 degree chamber
+                                return 1;
+                            } else {
+                                // 10 degree chamber
+                                return 2;
+                            }
+                        };
+                        isNeighbor = ((endcap_ == tp_endcap) && (sector_ == tp_sector) &&
+                                (tp_subsector == get_neighbor_subsector(tp_station, tp_ring)));
+
+                        if (isNeighbor){
+                            hit_neighbor.set_sector(sector_);
+                            hit_neighbor.set_pc_sector(sector_);
+                            hit_neighbor.set_neighbor(1);
+                            hit_neighbor.set_sector_idx((endcap_ == 1) ? sector_ - 1 : sector_ + 5);
+                        }
+
+                    }
+                    if (isNeighbor)
+                        out_hits.push_back(hit_neighbor);
+                }
+            }
+        }
+
+        emtf::dump_fw_raw_input(out_hits, EMTFUnpTracks_);
+
+    }
+
+    if(useEMTFHits_ && useEMTFTracks_){
+        std::cout << "******* Printing Out EMTF Re-Emulated Hits and Tracks *******" << std::endl;
+        emtf::dump_fw_raw_input(EMTFHits_, EMTFTracks_);
+    }
+
 }
 
 // -------------------------------------------------------

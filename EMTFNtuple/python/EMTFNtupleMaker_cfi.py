@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
 
+    debug           = cms.bool(True),
+
+
     CSCInputTag      = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
     RPCInputTag      = cms.InputTag('simMuonRPCDigis'),
     CPPFInputTag     = cms.InputTag('simCPPFDigis'),
@@ -42,16 +45,16 @@ EMTFNtuple = cms.EDAnalyzer('EMTFNtuple',
 
 
     useEMTFHits      = cms.bool(False),
-    useEMTFUnpHits   = cms.bool(False),
+    useEMTFUnpHits   = cms.bool(True),
 
-    useEMTFTracks    = cms.bool(True),
+    useEMTFTracks    = cms.bool(False),
     useEMTFUnpTracks = cms.bool(True),
 
     useGMTMuons      = cms.bool(False),
     useGMTUnpMuons   = cms.bool(False),
 
     useGENParts      = cms.bool(False),
-    useRecoMuons      = cms.bool(True),
+    useRecoMuons      = cms.bool(False),
     useEventInfo     = cms.bool(False),
 
     useCSCSegments   = cms.bool(False),
