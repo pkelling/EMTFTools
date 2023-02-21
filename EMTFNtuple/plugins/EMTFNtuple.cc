@@ -1206,7 +1206,10 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
     }
 
     // Event Info
-    eventInfo_event->push_back(iEvent.id().event());
+    eventInfo_event = iEvent.id().event();
+    eventInfo_run = iEvent.id().run();
+    eventInfo_lumi = iEvent.luminosityBlock();
+    eventInfo_bx = iEvent.bunchCrossing();
 
     // ___________________________________________________________________________
     // Fill
@@ -1870,16 +1873,6 @@ void EMTFNtuple::makeTree() {
     genPart_etaSt2 = std::make_unique<std::vector<float>>();
     genPart_phiSt2 = std::make_unique<std::vector<float>>();
 
-    // Event info
-    eventInfo_event = std::make_unique<std::vector<uint64_t>>();
-    eventInfo_run = std::make_unique<std::vector<uint32_t>>();
-    eventInfo_lumi = std::make_unique<std::vector<uint32_t>>();
-    eventInfo_npv =
-        std::make_unique<std::vector<float>>(); // getTrueNumInteractions()
-    eventInfo_nvtx =
-        std::make_unique<std::vector<int32_t>>(); // getPU_NumInteractions()
-    eventInfo_size = std::make_unique<int32_t>(0);
-
     // CSC Segment info
     cscSegment_locX = std::make_unique<std::vector<float>>();
     cscSegment_locY = std::make_unique<std::vector<float>>();
@@ -2233,12 +2226,11 @@ void EMTFNtuple::makeTree() {
 
     // Event info
     if (useEventInfo_) {
-        tree->Branch("eventInfo_event", &(*eventInfo_event));
-        tree->Branch("eventInfo_run", &(*eventInfo_run));
-        tree->Branch("eventInfo_lumi", &(*eventInfo_lumi));
-        tree->Branch("eventInfo_npv", &(*eventInfo_npv));
-        tree->Branch("eventInfo_nvtx", &(*eventInfo_nvtx));
-        tree->Branch("eventInfo_size", &(*eventInfo_size));
+        tree->Branch("eventInfo_event", &(eventInfo_event));
+        tree->Branch("eventInfo_run", &(eventInfo_run));
+        tree->Branch("eventInfo_lumi", &(eventInfo_lumi));
+        tree->Branch("eventInfo_npv", &(eventInfo_npv));
+        tree->Branch("eventInfo_nvtx", &(eventInfo_nvtx));
     }
 
     // Use CSC segments
@@ -2573,12 +2565,11 @@ void EMTFNtuple::fillTree() {
     genPart_phiSt2->clear();
 
     // Event info
-    eventInfo_event->clear();
-    eventInfo_run->clear();
-    eventInfo_lumi->clear();
-    eventInfo_npv->clear();
-    eventInfo_nvtx->clear();
-    (*eventInfo_size) = 0;
+    eventInfo_event = 0;
+    eventInfo_run = 0;
+    eventInfo_lumi = 0;
+    eventInfo_npv = 0;
+    eventInfo_nvtx = 0;
 
     // CSC Segment info
     cscSegment_locX->clear();

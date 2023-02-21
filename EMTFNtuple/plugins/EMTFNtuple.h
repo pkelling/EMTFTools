@@ -549,14 +549,14 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::unique_ptr<std::vector<float>> genPart_phiSt2;
 
     // Event info
-    std::unique_ptr<std::vector<uint64_t>> eventInfo_event;
-    std::unique_ptr<std::vector<uint32_t>> eventInfo_run;
-    std::unique_ptr<std::vector<uint32_t>> eventInfo_lumi;
-    std::unique_ptr<std::vector<float>>
-        eventInfo_npv; // getTrueNumInteractions()
-    std::unique_ptr<std::vector<int32_t>>
-        eventInfo_nvtx; // getPU_NumInteractions()
-    std::unique_ptr<int32_t> eventInfo_size;
+    unsigned long eventInfo_event;
+    unsigned long eventInfo_run;
+    unsigned long eventInfo_lumi;
+    unsigned long eventInfo_bx;
+
+    //Nb of primary vertices
+    int eventInfo_npv;
+    int eventInfo_nvtx;
 
     // CSC Segment info
     std::unique_ptr<std::vector<float>> cscSegment_locX;
