@@ -386,6 +386,7 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
         emtfTrack_eta->push_back(trk.Eta());
         emtfTrack_GMT_phi->push_back(trk.GMT_phi());
         emtfTrack_GMT_eta->push_back(trk.GMT_eta());
+        emtfTrack_GMT_dxy->push_back(trk.GMT_dxy());
         emtfTrack_q->push_back(trk.Charge());
         //
         emtfTrack_mode->push_back(trk.Mode());
@@ -464,13 +465,14 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
 
         emtfUnpTrack_pt->push_back(trk.Pt());
         emtfUnpTrack_xml_pt->push_back(trk.Pt_XML());
-        // emtfUnpTrack_pt_dxy       ->push_back(trk.Pt_dxy());
-        // emtfUnpTrack_dxy          ->push_back(trk.Dxy());
+        emtfUnpTrack_pt_dxy       ->push_back(trk.Pt_dxy());
+        emtfUnpTrack_dxy          ->push_back(trk.Dxy());
         // emtfUnpTrack_invpt_prompt ->push_back(trk.Invpt_prompt());
         // emtfUnpTrack_invpt_displ  ->push_back(trk.Invpt_displ());
         emtfUnpTrack_phi->push_back(trk.Phi_glob());
         emtfUnpTrack_theta->push_back(trk.Theta());
         emtfUnpTrack_eta->push_back(trk.Eta());
+        emtfUnpTrack_GMT_dxy->push_back(trk.GMT_dxy());
         emtfUnpTrack_q->push_back(trk.Charge());
         //
         emtfUnpTrack_mode->push_back(trk.Mode());
@@ -1747,6 +1749,7 @@ void EMTFNtuple::makeTree() {
     emtfTrack_eta = std::make_unique<std::vector<float>>();
     emtfTrack_GMT_phi = std::make_unique<std::vector<int32_t>>();
     emtfTrack_GMT_eta = std::make_unique<std::vector<int32_t>>();
+    emtfTrack_GMT_dxy = std::make_unique<std::vector<int32_t>>();
     emtfTrack_q = std::make_unique<std::vector<int16_t>>(); // charge
     //
     emtfTrack_mode = std::make_unique<std::vector<int16_t>>();
@@ -1798,6 +1801,7 @@ void EMTFNtuple::makeTree() {
     emtfUnpTrack_phi = std::make_unique<std::vector<float>>();   // in degrees
     emtfUnpTrack_theta = std::make_unique<std::vector<float>>(); // in degrees
     emtfUnpTrack_eta = std::make_unique<std::vector<float>>();
+    emtfUnpTrack_GMT_dxy = std::make_unique<std::vector<int32_t>>();
     emtfUnpTrack_q = std::make_unique<std::vector<int16_t>>(); // charge
     //
     emtfUnpTrack_mode = std::make_unique<std::vector<int16_t>>();
@@ -2100,6 +2104,7 @@ void EMTFNtuple::makeTree() {
         tree->Branch("emtfTrack_eta", &(*emtfTrack_eta));
         tree->Branch("emtfTrack_GMT_phi", &(*emtfTrack_GMT_phi));
         tree->Branch("emtfTrack_GMT_eta", &(*emtfTrack_GMT_eta));
+        tree->Branch("emtfTrack_GMT_dxy", &(*emtfTrack_GMT_dxy));
         tree->Branch("emtfTrack_q", &(*emtfTrack_q));
         //
         tree->Branch("emtfTrack_mode", &(*emtfTrack_mode));
@@ -2145,6 +2150,7 @@ void EMTFNtuple::makeTree() {
         tree->Branch("emtfUnpTrack_phi", &(*emtfUnpTrack_phi));
         tree->Branch("emtfUnpTrack_theta", &(*emtfUnpTrack_theta));
         tree->Branch("emtfUnpTrack_eta", &(*emtfUnpTrack_eta));
+        tree->Branch("emtfUnpTrack_GMT_dxy", &(*emtfUnpTrack_GMT_dxy));
         tree->Branch("emtfUnpTrack_q", &(*emtfUnpTrack_q));
         //
         tree->Branch("emtfUnpTrack_mode", &(*emtfUnpTrack_mode));
@@ -2458,6 +2464,7 @@ void EMTFNtuple::fillTree() {
     emtfTrack_eta->clear();
     emtfTrack_GMT_phi->clear();
     emtfTrack_GMT_eta->clear();
+    emtfTrack_GMT_dxy->clear();
     emtfTrack_q->clear();
     //
     emtfTrack_mode->clear();
@@ -2499,6 +2506,7 @@ void EMTFNtuple::fillTree() {
     emtfUnpTrack_phi->clear();
     emtfUnpTrack_theta->clear();
     emtfUnpTrack_eta->clear();
+    emtfUnpTrack_GMT_dxy->clear();
     emtfUnpTrack_q->clear();
     //
     emtfUnpTrack_mode->clear();
@@ -2636,7 +2644,8 @@ void EMTFNtuple::fillTree() {
 
 void EMTFNtuple::printDebugOutput() {
 
-    if(useEMTFUnpHits_ && useEMTFUnpTracks_){
+    // if(useEMTFUnpHits_ && useEMTFUnpTracks_){
+    if(useEMTFUnpTracks_){
         std::cout << "******* Printing Out EMTF Unpacked Hits and Tracks *******" << std::endl;
         auto out_hits = EMTFUnpHits_;
 
@@ -2705,7 +2714,8 @@ void EMTFNtuple::printDebugOutput() {
 
     }
 
-    if(useEMTFHits_ && useEMTFTracks_){
+    // if(useEMTFHits_ && useEMTFTracks_){
+    if(useEMTFTracks_){
         std::cout << "******* Printing Out EMTF Re-Emulated Hits and Tracks *******" << std::endl;
         emtf::dump_fw_raw_input(EMTFHits_, EMTFTracks_);
     }
