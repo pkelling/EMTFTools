@@ -431,6 +431,7 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::unique_ptr<std::vector<float>> emtfTrack_eta;
     std::unique_ptr<std::vector<int32_t>> emtfTrack_GMT_phi;
     std::unique_ptr<std::vector<int32_t>> emtfTrack_GMT_eta;
+    std::unique_ptr<std::vector<int32_t>> emtfTrack_GMT_dxy;    
     std::unique_ptr<std::vector<int16_t>> emtfTrack_q; // charge
     //
     std::unique_ptr<std::vector<int16_t>> emtfTrack_mode;
@@ -474,6 +475,7 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::unique_ptr<std::vector<float>> emtfUnpTrack_phi;   // in degrees
     std::unique_ptr<std::vector<float>> emtfUnpTrack_theta; // in degrees
     std::unique_ptr<std::vector<float>> emtfUnpTrack_eta;
+    std::unique_ptr<std::vector<int32_t>> emtfUnpTrack_GMT_dxy;
     std::unique_ptr<std::vector<int16_t>> emtfUnpTrack_q; // charge
     //
     std::unique_ptr<std::vector<int16_t>> emtfUnpTrack_mode;
