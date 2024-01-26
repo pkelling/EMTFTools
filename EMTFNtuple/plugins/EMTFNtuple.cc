@@ -311,11 +311,13 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
         emtfHit_neighbor->push_back(hit.Neighbor());
         //
         emtfHit_strip->push_back(hit.Strip());
+        emtfHit_strip_qses->push_back((hit.Strip_quart_bit() << 1) + hit.Strip_eighth_bit());
         emtfHit_wire->push_back(hit.Wire());
         emtfHit_roll->push_back(hit.Roll());
         emtfHit_quality->push_back(hit.Quality());
         emtfHit_pattern->push_back(hit.Pattern());
         emtfHit_bend->push_back(hit.Bend());
+        emtfHit_slope->push_back(hit.Slope());
         emtfHit_time->push_back(hit.Time());
         // emtfHit_fr         ->push_back(isFront(hit));
         emtfHit_emtf_phi->push_back(hit.Phi_fp());
@@ -348,6 +350,7 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
         emtfUnpHit_neighbor->push_back(hit.Neighbor());
         //
         emtfUnpHit_strip->push_back(hit.Strip());
+        emtfUnpHit_strip_qses->push_back((hit.Strip_quart_bit() << 1) + hit.Strip_eighth_bit());
         emtfUnpHit_wire->push_back(hit.Wire());
         emtfUnpHit_roll->push_back(hit.Roll());
         emtfUnpHit_quality->push_back(hit.Quality());
@@ -1676,11 +1679,13 @@ void EMTFNtuple::makeTree() {
     emtfHit_neighbor = std::make_unique<std::vector<int16_t>>();
     //
     emtfHit_strip = std::make_unique<std::vector<int16_t>>();
+    emtfHit_strip_qses = std::make_unique<std::vector<int16_t>>();
     emtfHit_wire = std::make_unique<std::vector<int16_t>>();
     emtfHit_roll = std::make_unique<std::vector<int16_t>>();
     emtfHit_quality = std::make_unique<std::vector<int16_t>>();
     emtfHit_pattern = std::make_unique<std::vector<int16_t>>();
     emtfHit_bend = std::make_unique<std::vector<int16_t>>();
+    emtfHit_slope = std::make_unique<std::vector<int16_t>>();
     emtfHit_time = std::make_unique<std::vector<int16_t>>();
     emtfHit_fr = std::make_unique<std::vector<int16_t>>();
     emtfHit_emtf_phi = std::make_unique<std::vector<int32_t>>(); // integer unit
@@ -1715,6 +1720,7 @@ void EMTFNtuple::makeTree() {
     emtfUnpHit_neighbor = std::make_unique<std::vector<int16_t>>();
     //
     emtfUnpHit_strip = std::make_unique<std::vector<int16_t>>();
+    emtfUnpHit_strip_qses = std::make_unique<std::vector<int16_t>>();
     emtfUnpHit_wire = std::make_unique<std::vector<int16_t>>();
     emtfUnpHit_roll = std::make_unique<std::vector<int16_t>>();
     emtfUnpHit_quality = std::make_unique<std::vector<int16_t>>();
@@ -2031,11 +2037,13 @@ void EMTFNtuple::makeTree() {
         tree->Branch("emtfHit_neighbor", &(*emtfHit_neighbor));
         //
         tree->Branch("emtfHit_strip", &(*emtfHit_strip));
+        tree->Branch("emtfHit_strip_qses", &(*emtfHit_strip_qses));
         tree->Branch("emtfHit_wire", &(*emtfHit_wire));
         tree->Branch("emtfHit_roll", &(*emtfHit_roll));
         tree->Branch("emtfHit_quality", &(*emtfHit_quality));
         tree->Branch("emtfHit_pattern", &(*emtfHit_pattern));
         tree->Branch("emtfHit_bend", &(*emtfHit_bend));
+        tree->Branch("emtfHit_slope", &(*emtfHit_slope));
         tree->Branch("emtfHit_time", &(*emtfHit_time));
         tree->Branch("emtfHit_fr", &(*emtfHit_fr));
         tree->Branch("emtfHit_emtf_phi", &(*emtfHit_emtf_phi));
@@ -2070,6 +2078,7 @@ void EMTFNtuple::makeTree() {
         tree->Branch("emtfUnpHit_neighbor", &(*emtfUnpHit_neighbor));
         //
         tree->Branch("emtfUnpHit_strip", &(*emtfUnpHit_strip));
+        tree->Branch("emtfUnpHit_strip_qses", &(*emtfUnpHit_strip_qses));
         tree->Branch("emtfUnpHit_wire", &(*emtfUnpHit_wire));
         tree->Branch("emtfUnpHit_roll", &(*emtfUnpHit_roll));
         tree->Branch("emtfUnpHit_quality", &(*emtfUnpHit_quality));
@@ -2395,11 +2404,13 @@ void EMTFNtuple::fillTree() {
     emtfHit_neighbor->clear();
     //
     emtfHit_strip->clear();
+    emtfHit_strip_qses->clear();
     emtfHit_wire->clear();
     emtfHit_roll->clear();
     emtfHit_quality->clear();
     emtfHit_pattern->clear();
     emtfHit_bend->clear();
+    emtfHit_slope->clear();
     emtfHit_time->clear();
     emtfHit_fr->clear();
     emtfHit_emtf_phi->clear();
@@ -2432,6 +2443,7 @@ void EMTFNtuple::fillTree() {
     emtfUnpHit_neighbor->clear();
     //
     emtfUnpHit_strip->clear();
+    emtfUnpHit_strip_qses->clear();
     emtfUnpHit_wire->clear();
     emtfUnpHit_roll->clear();
     emtfUnpHit_quality->clear();
