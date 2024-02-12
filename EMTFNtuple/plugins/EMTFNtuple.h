@@ -363,11 +363,13 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::unique_ptr<std::vector<int16_t>> emtfHit_neighbor;
     //
     std::unique_ptr<std::vector<int16_t>> emtfHit_strip;
+    std::unique_ptr<std::vector<int16_t>> emtfHit_strip_qses;
     std::unique_ptr<std::vector<int16_t>> emtfHit_wire;
     std::unique_ptr<std::vector<int16_t>> emtfHit_roll;
     std::unique_ptr<std::vector<int16_t>> emtfHit_quality;
     std::unique_ptr<std::vector<int16_t>> emtfHit_pattern;
     std::unique_ptr<std::vector<int16_t>> emtfHit_bend;
+    std::unique_ptr<std::vector<int16_t>> emtfHit_slope;
     std::unique_ptr<std::vector<int16_t>> emtfHit_time;
     std::unique_ptr<std::vector<int16_t>> emtfHit_fr;
     std::unique_ptr<std::vector<int32_t>> emtfHit_emtf_phi;   // integer unit
@@ -399,6 +401,7 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::unique_ptr<std::vector<int16_t>> emtfUnpHit_neighbor;
     //
     std::unique_ptr<std::vector<int16_t>> emtfUnpHit_strip;
+    std::unique_ptr<std::vector<int16_t>> emtfUnpHit_strip_qses;
     std::unique_ptr<std::vector<int16_t>> emtfUnpHit_wire;
     std::unique_ptr<std::vector<int16_t>> emtfUnpHit_roll;
     std::unique_ptr<std::vector<int16_t>> emtfUnpHit_quality;
