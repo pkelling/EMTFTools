@@ -2210,7 +2210,7 @@ void EMTFNtuple::makeTree() {
     }
 
     // GMT Unpacked muons
-    if (useGMTMuons_) {
+    if (useGMTUnpMuons_) {
         tree->Branch("gmtUnpMuon_pt", &(*gmtUnpMuon_pt));
         tree->Branch("gmtUnpMuon_pt_dxy", &(*gmtUnpMuon_pt_dxy));
         tree->Branch("gmtUnpMuon_dxy", &(*gmtUnpMuon_dxy));
