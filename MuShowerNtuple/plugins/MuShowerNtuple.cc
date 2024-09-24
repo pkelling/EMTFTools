@@ -64,14 +64,13 @@ void MuShowerNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // get handles
   getHandles(iEvent, iSetup);
 
-
-
-
   // CSCShowerDigis from CSC output
   for (auto const& element : *CSCShowerDigis_) {
     auto detId = element.first;
-    auto cscShower = element.second.first;
+    auto cscShower = element.second.first; 
     auto cscShowerEnd = element.second.second;
+
+    
 
     int endcap = (detId.endcap() == 1 ? 1 : -1);
     int station = detId.station();
@@ -94,6 +93,8 @@ void MuShowerNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
+
+  /*
   // CSCShowerDigis from EMTF input
   for (auto const& element : *EMTFShowerDigis_) {
     auto detId = element.first;
@@ -121,6 +122,7 @@ void MuShowerNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
+
   // EMTFRegionalShowers from EMTF output
   for (int ibx = EMTFRegionalShowers_->getFirstBX(); ibx <= EMTFRegionalShowers_->getLastBX(); ++ibx) {
     for (l1t::RegionalMuonShowerBxCollection::const_iterator it = EMTFRegionalShowers_->begin(ibx); it != EMTFRegionalShowers_->end(ibx); it++) {
@@ -137,6 +139,7 @@ void MuShowerNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
+
 
   // GMTRegionalShowers from GMT input
   for (int ibx = GMTRegionalShowers_->getFirstBX(); ibx <= GMTRegionalShowers_->getLastBX(); ++ibx) {
@@ -155,6 +158,7 @@ void MuShowerNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
+
   // GMTShowers from GMT output
   for (int ibx = GMTShowers_->getFirstBX(); ibx <= GMTShowers_->getLastBX(); ++ibx) {
     for (l1t::MuonShowerBxCollection::const_iterator it = GMTShowers_->begin(ibx); it != GMTShowers_->end(ibx); it++) {
@@ -167,6 +171,10 @@ void MuShowerNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
+  */
+
+  // Fill
+  fillTree();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -291,9 +299,6 @@ void MuShowerNtuple::getHandles(const edm::Event &iEvent,
     GMTShowers_ = nullptr;
   }
 
-    // Fill
-
-    fillTree();
 
 }
 

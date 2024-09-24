@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 MuShowerNtuple = cms.EDAnalyzer('MuShowerNtuple',
-    CSCShowerDigiInputTag      = cms.InputTag('muonCSCDigis','MuonCSCShowerDigi'),
+
+    CSCShowerDigiInputTag      = cms.InputTag("simCscTriggerPrimitiveDigis"),
     EMTFShowerDigiInputTag     = cms.InputTag('emtfStage2Digis'),
     EMTFRegionalShowerInputTag  = cms.InputTag('emtfStage2Digis'),
     GMTRegionalShowerInputTag  = cms.InputTag('gmtStage2Digis', 'EMTF'),

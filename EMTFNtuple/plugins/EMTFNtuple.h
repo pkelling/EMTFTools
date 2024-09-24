@@ -366,6 +366,7 @@ class EMTFNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::unique_ptr<std::vector<int16_t>> emtfHit_strip_qses;
     std::unique_ptr<std::vector<int16_t>> emtfHit_wire;
     std::unique_ptr<std::vector<int16_t>> emtfHit_roll;
+    std::unique_ptr<std::vector<int16_t>> emtfHit_layer;
     std::unique_ptr<std::vector<int16_t>> emtfHit_quality;
     std::unique_ptr<std::vector<int16_t>> emtfHit_pattern;
     std::unique_ptr<std::vector<int16_t>> emtfHit_bend;

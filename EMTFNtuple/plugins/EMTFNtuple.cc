@@ -314,6 +314,7 @@ void EMTFNtuple::analyze(const edm::Event &iEvent,
         emtfHit_strip_qses->push_back((hit.Strip_quart_bit() << 1) + hit.Strip_eighth_bit());
         emtfHit_wire->push_back(hit.Wire());
         emtfHit_roll->push_back(hit.Roll());
+        emtfHit_layer->push_back(hit.Layer());
         emtfHit_quality->push_back(hit.Quality());
         emtfHit_pattern->push_back(hit.Pattern());
         emtfHit_bend->push_back(hit.Bend());
@@ -1682,6 +1683,7 @@ void EMTFNtuple::makeTree() {
     emtfHit_strip_qses = std::make_unique<std::vector<int16_t>>();
     emtfHit_wire = std::make_unique<std::vector<int16_t>>();
     emtfHit_roll = std::make_unique<std::vector<int16_t>>();
+    emtfHit_layer = std::make_unique<std::vector<int16_t>>();
     emtfHit_quality = std::make_unique<std::vector<int16_t>>();
     emtfHit_pattern = std::make_unique<std::vector<int16_t>>();
     emtfHit_bend = std::make_unique<std::vector<int16_t>>();
@@ -2040,6 +2042,7 @@ void EMTFNtuple::makeTree() {
         tree->Branch("emtfHit_strip_qses", &(*emtfHit_strip_qses));
         tree->Branch("emtfHit_wire", &(*emtfHit_wire));
         tree->Branch("emtfHit_roll", &(*emtfHit_roll));
+        tree->Branch("emtfHit_layer", &(*emtfHit_layer));
         tree->Branch("emtfHit_quality", &(*emtfHit_quality));
         tree->Branch("emtfHit_pattern", &(*emtfHit_pattern));
         tree->Branch("emtfHit_bend", &(*emtfHit_bend));
@@ -2407,6 +2410,7 @@ void EMTFNtuple::fillTree() {
     emtfHit_strip_qses->clear();
     emtfHit_wire->clear();
     emtfHit_roll->clear();
+    emtfHit_layer->clear();
     emtfHit_quality->clear();
     emtfHit_pattern->clear();
     emtfHit_bend->clear();
